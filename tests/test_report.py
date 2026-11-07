@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 
 from backdoor_defense_lab.report import (
+    art_table,
     attack_table,
     detection_table,
     fmt,
@@ -134,3 +135,33 @@ def test_render_and_load(tmp_path: Path, rows: list[dict[str, Any]]) -> None:
     md = render(tmp_path)
     assert "### Detection" in md and "### Repair" in md and "### Attacks" not in md
     assert render(tmp_path, ["text"]) == ""
+
+
+def _art(seed: int, ours_flag: bool, art_flag: bool) -> dict[str, Any]:
+    ac = {
+        "split_agreement": 0.98,
+        "ours_flagged": ours_flag,
+        "art_flagged": art_flag,
+        "seconds_ours": 0.01,
+        "seconds_art": 0.5,
+    }
+    return {
+        "dataset": "cifar10",
+        "attack": "badnets",
+        "seed": seed,
+        "spectral": {"auroc_ours_centered": 0.6, "auroc_art_uncentered": 0.4},
+        "ac_pca": ac,
+        "ac_ica": ac,
+    }
+
+
+def test_art_table() -> None:
+    table = art_table([_art(0, True, True), _art(1, True, False)])
+    lines = table.splitlines()
+    assert len(lines) == 3
+    row = lines[2]
+    assert "| CIFAR-10 | BadNets | 2 |" in row
+    assert "60.0 ± 0.0" in row and "40.0 ± 0.0" in row
+    assert "2 / 1 of 2" in row
+    assert "10 / 500" in row
+    assert art_table([]).count("\n") == 1
