@@ -1,4 +1,4 @@
-# Records docs/demo/report.gif from a real run: `vhs docs/demo/demo.tape` from the repo root.
+# Records docs/demo/report.gif from a real run: `vhs docs/demo/report.tape` from the repo root.
 Output docs/demo/report.gif
 Set Shell "bash"
 Set FontSize 15
