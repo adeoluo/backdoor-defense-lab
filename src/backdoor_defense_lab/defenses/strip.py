@@ -76,7 +76,7 @@ def strip_entropy(
         blended = superimpose(xb.repeat_interleave(n_perturb, 0), overlays, mode, alpha)
         probs = torch.softmax(model(blended), dim=1)
         h = entropy(probs).view(b, n_perturb).mean(1)
-        out[start : start + b] = h.double().cpu().numpy()
+        out[start : start + b] = h.cpu().double().numpy()
     return out
 
 

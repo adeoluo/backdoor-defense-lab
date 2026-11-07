@@ -42,7 +42,7 @@ def channel_activations(model: ResNet9, x: torch.Tensor, batch_size: int = 512) 
     n = 0
     for start in range(0, len(x), batch_size):
         h = model.last_conv(x[start : start + batch_size].to(device))
-        total += h.mean(dim=(2, 3)).sum(0).double().cpu()
+        total += h.mean(dim=(2, 3)).sum(0).cpu().double()
         n += len(h)
     return (total / max(n, 1)).float()
 
