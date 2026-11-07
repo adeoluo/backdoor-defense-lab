@@ -1,0 +1,48 @@
+# Backdoor Defense Lab
+
+> Backdoor attacks and defenses for image and text classifiers, measured on CIFAR-10, GTSRB and SST-2.
+
+Languages: Python. License: MIT. Source: https://github.com/adeoluo/backdoor-defense-lab
+
+## Docs
+
+- [README](https://github.com/adeoluo/backdoor-defense-lab/blob/main/README.md): motivation
+- [AGENTS.md](https://github.com/adeoluo/backdoor-defense-lab/blob/main/AGENTS.md): layout, commands and conventions for changing the code
+- [Architecture diagram](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/architecture/architecture.mmd): Mermaid source of the component diagram
+- [Data Card - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/DATA_CARD.md)
+- [Definition of Done](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/DEFINITION_OF_DONE.md)
+- [Evaluation Report - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/EVALUATION_REPORT.md)
+- [Model / System Card - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/MODEL_CARD.md)
+- [Threat Model - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/THREAT_MODEL.md)
+- [ADR-0001: Record architecture decisions](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0001-record-architecture-decisions.md)
+- [ADR-NNNN: <short title>](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/template.md)
+- [Changelog](https://github.com/adeoluo/backdoor-defense-lab/blob/main/CHANGELOG.md): release history
+
+## Source
+
+- [src/backdoor_defense_lab/__init__.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/__init__.py): Backdoor attacks and defenses for image and text classifiers.
+- [src/backdoor_defense_lab/attacks/__init__.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/__init__.py): Image backdoor attacks: BadNets, Blend, WaNet and the label-consistent (clean-label) attack.
+- [src/backdoor_defense_lab/attacks/badnets.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/badnets.py): BadNets (Gu, Dolan-Gavitt and Garg, 2017): a small fixed patch stamped onto the image.
+- [src/backdoor_defense_lab/attacks/base.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/base.py): Common interface of the image backdoor attacks.
+- [src/backdoor_defense_lab/attacks/blend.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/blend.py): Blend (Chen, Liu, Li, Lu and Song, 2017): a full-image pattern mixed in at low opacity.
+- [src/backdoor_defense_lab/attacks/label_consistent.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/label_consistent.py): Label-consistent (clean-label) backdoor (Turner, Tsipras and Madry, 2019).
+- [src/backdoor_defense_lab/attacks/wanet.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/attacks/wanet.py): WaNet (Nguyen and Tran, 2021): an imperceptible warping trigger.
+- [src/backdoor_defense_lab/cli.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/cli.py): Command line interface: ``python -m backdoor_defense_lab <command>``.
+- [src/backdoor_defense_lab/data.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/data.py): Image datasets as uint8 arrays, and their conversion to float tensors in [0, 1].
+- [src/backdoor_defense_lab/defenses/__init__.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/__init__.py): Backdoor defenses: data inspection, run-time input detection and model repair.
+- [src/backdoor_defense_lab/defenses/activation_clustering.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/activation_clustering.py): Activation clustering (Chen, Carvalho, Baracaldo, Ludwig, Edwards, Lee, Molloy and Srivastava, 2018).
+- [src/backdoor_defense_lab/defenses/fine_pruning.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/fine_pruning.py): Fine-pruning (Liu, Dolan-Gavitt and Garg, 2018).
+- [src/backdoor_defense_lab/defenses/neural_cleanse.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/neural_cleanse.py): Neural Cleanse (Wang, Yao, Shan, Li, Viswanath, Zheng and Zhao, 2019).
+- [src/backdoor_defense_lab/defenses/spectral.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/spectral.py): Spectral signatures (Tran, Li and Madry, 2018).
+- [src/backdoor_defense_lab/defenses/strip.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/defenses/strip.py): STRIP: STRong Intentional Perturbation (Gao, Xu, Wang, Chen, Ranasinghe and Nepal, 2019).
+- [src/backdoor_defense_lab/evaluate.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/evaluate.py): Run every defense on one trained model and measure it against the poisoning ground truth.
+- [src/backdoor_defense_lab/metrics.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/metrics.py): Detection and attack metrics.
+- [src/backdoor_defense_lab/models.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/models.py): Image classifier used for every attack and defense: a narrow ResNet-9.
+- [src/backdoor_defense_lab/pipeline.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/pipeline.py): End-to-end experiment steps shared by the CLI and the benchmark scripts.
+- [src/backdoor_defense_lab/report.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/report.py): Aggregate the per-run JSON results into the tables of the README and evaluation report.
+- [src/backdoor_defense_lab/text/__init__.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/text/__init__.py): Text backdoor: a rare-token trigger in a small transformer sentiment classifier, and ONION.
+- [src/backdoor_defense_lab/text/attack.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/text/attack.py): Rare-token trigger (Kurita, Michel and Neubig, 2020; the BadNL word trigger of Chen et al.).
+- [src/backdoor_defense_lab/text/data.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/text/data.py): SST-2 sentences and a word-level vocabulary.
+- [src/backdoor_defense_lab/text/model.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/text/model.py): A small transformer encoder sentiment classifier, trained from scratch.
+- [src/backdoor_defense_lab/text/onion.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/text/onion.py): ONION: outlier word detection with a language model (Qi, Chen, Zhang, Liu and Sun, 2021).
+- [src/backdoor_defense_lab/train.py](https://github.com/adeoluo/backdoor-defense-lab/blob/main/src/backdoor_defense_lab/train.py): Training loop for the image classifiers (clean or poisoned), and checkpoint I/O.

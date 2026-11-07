@@ -1,38 +1,48 @@
----
-title: System Architecture - Backdoor Defense Lab
-config:
-  theme: base
-  themeVariables:
-    fontFamily: "Inter, system-ui, sans-serif"
-    primaryColor: "#F8FAFC"
-    primaryBorderColor: "#1E293B"
-    primaryTextColor: "#1E293B"
-    lineColor: "#64748B"
-    clusterBkg: "#E2E8F0"
-    clusterBorder: "#94A3B8"
----
 flowchart LR
+    classDef edge     fill:#F59E0B,stroke:#1E293B,color:#1E293B,stroke-width:1px;
     classDef core     fill:#6366F1,stroke:#1E293B,color:#ffffff,stroke-width:1px;
     classDef data     fill:#10B981,stroke:#1E293B,color:#ffffff,stroke-width:1px;
-    classDef external fill:#F59E0B,stroke:#1E293B,color:#1E293B,stroke-width:1px;
-    classDef danger   fill:#EF4444,stroke:#1E293B,color:#ffffff,stroke-width:1px;
+    classDef control  fill:#0EA5E9,stroke:#1E293B,color:#ffffff,stroke-width:1px;
+    classDef obs      fill:#CBD5E1,stroke:#1E293B,color:#1E293B,stroke-width:1px;
 
-    User([User]):::external
-
-    subgraph Application["Application Service"]
-        API[API Layer]:::core
-        Core[Core Engine]:::core
-        Evaluation[Evaluation Harness]:::core
+    subgraph Interfaces["Interfaces"]
+        direction TB
+        User([Researcher]):::edge
+        CLI["CLI<br/>train, defend"]:::edge
+        Scripts["Benchmarks<br/>3 seeds per run"]:::edge
+        Settings["Settings<br/>seeds, splits"]:::control
+        User --> CLI ~~~ Scripts ~~~ Settings
     end
 
-    Cache[(Semantic Cache)]:::data
-    Store[(Datastore / Index)]:::data
-    LLM{{LLM Provider}}:::external
+    subgraph Poison["Data and attacks"]
+        direction TB
+        Datasets[("CIFAR-10, GTSRB<br/>SST-2")]:::data
+        Image["Dirty-label<br/>BadNets, Blend"]:::core
+        Clean["WaNet warp<br/>clean-label PGD"]:::core
+        Text["Text trigger<br/>rare tokens"]:::core
+        Datasets --> Image ~~~ Clean ~~~ Text
+    end
 
-    User -->|request| API
-    API --> Core
-    Core -->|lookup| Cache
-    Core -->|retrieve| Store
-    Core -->|completion| LLM
-    Core -.->|traces/metrics| Evaluation
-    Core -->|response| User
+    subgraph Models["Training and defenses"]
+        direction TB
+        Train["Training<br/>ResNet-9, encoder"]:::core
+        Ckpt[("Checkpoints<br/>weights only")]:::data
+        Inspect["Data inspection<br/>spectral, AC"]:::control
+        Filter["Input filters<br/>STRIP, ONION"]:::control
+        Repair["Model repair<br/>NC, fine-pruning"]:::control
+        Train --> Ckpt --> Inspect ~~~ Filter ~~~ Repair
+    end
+
+    subgraph Obs["Evaluation and reports"]
+        direction TB
+        Metrics["Metrics<br/>AUROC, TPR, ASR"]:::obs
+        Results["JSON results<br/>one per run"]:::obs
+        Report["Report tables<br/>mean and sd"]:::obs
+        Parity["Parity tests<br/>sklearn, ART"]:::obs
+        Metrics --> Results --> Report ~~~ Parity
+    end
+
+    Interfaces -->|attack| Poison
+    Poison -->|poisons| Models
+    Interfaces -.->|settings| Models
+    Models -->|scores| Obs
