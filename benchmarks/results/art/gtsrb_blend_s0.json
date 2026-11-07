@@ -1,0 +1,40 @@
+{
+  "dataset": "gtsrb",
+  "attack": "blend",
+  "seed": 0,
+  "spectral": {
+    "auroc_ours_centered": 0.019996048075619614,
+    "auroc_art_uncentered": 0.0,
+    "seconds_ours": 0.8177882500021951,
+    "seconds_art": 0.36471895900103846
+  },
+  "ac_pca": {
+    "flag_agreement": 0.638495359062042,
+    "split_agreement": 1.0,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.361504640937958,
+    "art_smaller_fraction": 0.361504640937958,
+    "seconds_ours": 0.953789457998937,
+    "seconds_art": 0.21252341700164834
+  },
+  "ac_ica": {
+    "flag_agreement": 0.791727731639798,
+    "split_agreement": 0.8457905878521413,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.361504640937958,
+    "art_smaller_fraction": 0.20827226836020193,
+    "seconds_ours": 0.7828307080017112,
+    "seconds_art": 0.7282247500006633
+  },
+  "n": 6141,
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}

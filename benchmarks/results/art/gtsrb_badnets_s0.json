@@ -1,0 +1,40 @@
+{
+  "dataset": "gtsrb",
+  "attack": "badnets",
+  "seed": 0,
+  "spectral": {
+    "auroc_ours_centered": 0.16355395180949886,
+    "auroc_art_uncentered": 1.0,
+    "seconds_ours": 1.2231462910021946,
+    "seconds_art": 0.8578687909975997
+  },
+  "ac_pca": {
+    "flag_agreement": 0.6371926396352385,
+    "split_agreement": 1.0,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.36280736036476147,
+    "art_smaller_fraction": 0.36280736036476147,
+    "seconds_ours": 1.1157440829992993,
+    "seconds_art": 0.268501083002775
+  },
+  "ac_ica": {
+    "flag_agreement": 0.8174564403191663,
+    "split_agreement": 0.5438853606904412,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.3616674808663084,
+    "art_smaller_fraction": 0.18254355968083374,
+    "seconds_ours": 0.9446307079997496,
+    "seconds_art": 0.6072781660004694
+  },
+  "n": 6141,
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
