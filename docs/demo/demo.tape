@@ -15,5 +15,5 @@ Type `clear` Enter
 Sleep 1s
 Show
 Type `python -m backdoor_defense_lab demo --n-train 1200 --epochs 6` Enter
-Sleep 150s
+Wait+Screen@900s /fine-pruning ASR/
 Sleep 4s
