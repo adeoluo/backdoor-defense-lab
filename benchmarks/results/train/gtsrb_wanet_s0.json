@@ -1,0 +1,40 @@
+{
+  "dataset": "gtsrb",
+  "attack": "wanet",
+  "seed": 0,
+  "clean_accuracy": 0.9752969121140143,
+  "attack_success_rate": 0.9461796809403862,
+  "n_poisoned": 3921,
+  "n_train": 39209,
+  "train_seconds": 333.80246712500013,
+  "images_per_second": 1173.3885713113266,
+  "poison_seconds": 2.184168375000013,
+  "attack_config": {
+    "name": "wanet",
+    "target": 1,
+    "rate": 0.1,
+    "k": 4,
+    "strength": 0.5,
+    "cross_ratio": 2.0,
+    "grid_seed": 4321
+  },
+  "train_config": {
+    "epochs": 10,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
