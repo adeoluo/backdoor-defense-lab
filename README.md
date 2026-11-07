@@ -157,7 +157,8 @@ then every defense on it, on CPU or MPS in about two minutes.
 </p>
 
 `python -m backdoor_defense_lab onion`: GPT-2 suspicion scores for every word; the inserted
-trigger tokens stand out.
+trigger tokens score highest, and at the default threshold of 0 a few clean words are removed
+with them.
 
 <p align="center">
   <img src="docs/demo/report.gif" alt="Aggregated result tables" width="860">
@@ -187,7 +188,12 @@ make coverage     # the same with the 80% coverage gate used in CI
 make validation   # parity against scikit-learn and IBM ART (installs the validation group)
 ```
 
-TESTING_PLACEHOLDER
+167 tests: 146 in the default suite (unit tests for every attack, defense and metric,
+hypothesis property tests for the poisoning invariants, AUROC and the clustering primitives,
+CLI and pipeline integration on synthetic data) and 21 opt-in parity tests that compare PCA,
+FastICA, k-means, silhouette and AUROC with scikit-learn, and spectral signatures and
+activation clustering with IBM ART. Line and branch coverage of the default suite is 99%; CI
+runs it on Python 3.11 and 3.12 with an 80% gate.
 
 ## Responsible AI
 
