@@ -1,0 +1,37 @@
+{
+  "dataset": "gtsrb",
+  "attack": "badnets",
+  "seed": 0,
+  "clean_accuracy": 0.9889944576405384,
+  "attack_success_rate": 1.0,
+  "n_poisoned": 3921,
+  "n_train": 39209,
+  "train_seconds": 149.097191292,
+  "images_per_second": 2627.0112575958105,
+  "poison_seconds": 2.2067355829999826,
+  "attack_config": {
+    "name": "badnets",
+    "target": 1,
+    "rate": 0.1,
+    "patch": 3
+  },
+  "train_config": {
+    "epochs": 10,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
