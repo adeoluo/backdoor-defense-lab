@@ -3,8 +3,8 @@
 Token and learned position embeddings (``d_model``), ``n_layers`` pre-norm encoder layers with
 ``n_heads`` heads and a GELU feed-forward block, then masked mean pooling over the non-padding
 tokens and a linear head. Trained with AdamW, linear warm-up then linear decay, and dropout.
-The default (2 layers, width 128, 4 heads) has about 1.9M parameters, most of them in the
-embedding table, and trains on the 67k SST-2 training texts in a few minutes on an M1.
+The default (2 layers, width 128, 4 heads) has 2.17M parameters with the 14,823-word SST-2
+vocabulary, most of them in the embedding table.
 """
 
 from __future__ import annotations

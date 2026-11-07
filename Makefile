@@ -33,10 +33,21 @@ data: ## Download CIFAR-10, GTSRB and SST-2 into ../.bench-data/backdoor-defense
 	uv sync --all-extras --dev --group data
 	scripts/download_data.sh
 
-train: ## Train the clean and backdoored image models (2 datasets x 5 runs x 3 seeds)
+train: ## Train the clean and backdoored image models (2 datasets x 5 runs x 3 seeds + 1% ablation)
 	uv run python benchmarks/train_models.py
+	uv run python benchmarks/train_models.py --datasets cifar10 --attacks badnets_low
 
-evaluation: train ## Every benchmark behind the README and docs/EVALUATION_REPORT.md
+defend: ## Run every defense on every trained model
+	uv run python benchmarks/run_defenses.py --attacks clean badnets blend wanet label_consistent badnets_low
+
+text: ## Text backdoor on SST-2 and ONION (GPT-2 and unigram), 3 seeds
+	uv sync --all-extras --dev
+	uv run python benchmarks/run_text.py
+
+report: ## Print the aggregated result tables
+	uv run python -m backdoor_defense_lab report
+
+evaluation: train defend text report ## Every benchmark behind the README and docs/EVALUATION_REPORT.md
 
 diagram: ## Render architecture diagram to SVG
 	npx -y @mermaid-js/mermaid-cli -i docs/architecture/architecture.mmd \
@@ -54,3 +65,9 @@ clean: ## Remove caches and artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} +
 
 all: lint type coverage ## Full local gate (mirror of continuous integration)
+
+changelog: ## Regenerate CHANGELOG.md from Conventional Commits (git-cliff)
+	git cliff --output CHANGELOG.md && perl -0pi -e 's/\n+\z/\n/' CHANGELOG.md
+
+cut-release: ## Cut a release locally: version bump, changelog, tag, GitHub release (RELEASE_VERSION=vX.Y.Z optional)
+	scripts/release.sh $(RELEASE_VERSION)
