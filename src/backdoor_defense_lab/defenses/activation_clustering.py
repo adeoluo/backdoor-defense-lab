@@ -103,7 +103,8 @@ def _kmeans_pp(x: FloatArray, k: int, rng: np.random.Generator) -> FloatArray:
 def _sq_dists(x: FloatArray, centers: FloatArray, x_sq: FloatArray) -> FloatArray:
     """Squared distances ``|x - c|^2 = |x|^2 + |c|^2 - 2 x.c`` (no n x k x d temporary)."""
     d = x_sq[:, None] + (centers**2).sum(1)[None, :] - 2.0 * (x @ centers.T)
-    return np.maximum(d, 0.0)
+    out: FloatArray = np.maximum(d, 0.0)
+    return out
 
 
 def kmeans(
