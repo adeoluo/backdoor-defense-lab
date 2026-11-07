@@ -1,0 +1,42 @@
+{
+  "dataset": "gtsrb",
+  "attack": "label_consistent",
+  "seed": 0,
+  "clean_accuracy": 0.9909738717339668,
+  "attack_success_rate": 0.9576826196473551,
+  "n_poisoned": 1110,
+  "n_train": 39209,
+  "train_seconds": 1444.312153916,
+  "images_per_second": 271.187913871685,
+  "poison_seconds": 20.36715491599989,
+  "attack_config": {
+    "name": "label_consistent",
+    "target": 1,
+    "rate": 0.5,
+    "eps": 0.06274509803921569,
+    "steps": 20,
+    "step": 0.00784313725490196,
+    "patch": 3,
+    "poison_amplitude": 1.0,
+    "surrogate": true
+  },
+  "train_config": {
+    "epochs": 10,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
