@@ -1,4 +1,4 @@
-.PHONY: help setup lint format type test coverage evaluation run diagram docker-build docker-up clean all
+.PHONY: help setup lint format type test coverage validation data train defend text evaluation report diagram docker-build docker-up clean all changelog cut-release
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -25,14 +25,21 @@ test: ## Run tests
 coverage: ## Tests with coverage gate
 	uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
 
-evaluation: ## Reproduce the results table
-	uv run python -m backdoor_defense_lab.evaluation
+validation: ## Parity tests against reference libraries (ART, scikit-learn)
+	uv sync --all-extras --dev --group validation
+	uv run --no-sync pytest -m validation -v
 
-run: ## Run the application entrypoint
-	uv run python -m backdoor_defense_lab
+data: ## Download CIFAR-10, GTSRB and SST-2 into ../.bench-data/backdoor-defense-lab
+	uv sync --all-extras --dev --group data
+	scripts/download_data.sh
+
+train: ## Train the clean and backdoored image models (2 datasets x 5 runs x 3 seeds)
+	uv run python benchmarks/train_models.py
+
+evaluation: train ## Every benchmark behind the README and docs/EVALUATION_REPORT.md
 
 diagram: ## Render architecture diagram to SVG
-	mmdc -i docs/architecture/architecture.mmd \
+	npx -y @mermaid-js/mermaid-cli -i docs/architecture/architecture.mmd \
 	     -o docs/architecture/architecture.svg \
 	     -c mermaid.config.json -b transparent
 
