@@ -100,6 +100,13 @@ def _kmeans_pp(x: FloatArray, k: int, rng: np.random.Generator) -> FloatArray:
     return np.asarray(centers)
 
 
+def _sq_dists(x: FloatArray, centers: FloatArray, x_sq: FloatArray) -> FloatArray:
+    """Squared distances ``|x - c|^2 = |x|^2 + |c|^2 - 2 x.c`` (no n x k x d temporary)."""
+    d = x_sq[:, None] + (centers**2).sum(1)[None, :] - 2.0 * (x @ centers.T)
+    out: FloatArray = np.maximum(d, 0.0)
+    return out
+
+
 def kmeans(
     x: ArrayLike,
     k: int = 2,
@@ -117,15 +124,20 @@ def kmeans(
     if len(a) < k:
         raise ValueError("need at least k points")
     rng = np.random.default_rng(seed)
+    sq = (a**2).sum(1)
     best: tuple[NDArray[np.int64], FloatArray, float] | None = None
     for _ in range(n_init):
         centers = _kmeans_pp(a, k, rng)
+        prev: NDArray[np.int64] | None = None
         for _ in range(max_iter):
-            d = ((a[:, None, :] - centers[None, :, :]) ** 2).sum(-1)
-            lab = d.argmin(1)
-            new = np.array(
-                [a[lab == j].mean(0) if np.any(lab == j) else centers[j] for j in range(k)]
-            )
+            lab = _sq_dists(a, centers, sq).argmin(1)
+            if prev is not None and np.array_equal(lab, prev):
+                break  # assignments are a fixed point: the centers cannot move
+            prev = lab
+            onehot = (lab[:, None] == np.arange(k)[None, :]).astype(np.float64)
+            counts = onehot.sum(0)
+            sums = onehot.T @ a
+            new = np.where(counts[:, None] > 0, sums / np.maximum(counts, 1)[:, None], centers)
             shift = float(((new - centers) ** 2).sum())
             centers = new
             if shift <= tol:
@@ -153,16 +165,20 @@ def silhouette(x: ArrayLike, labels: ArrayLike, max_points: int = 2000, seed: in
     clusters = np.unique(lab)
     if len(clusters) < 2:
         return 0.0
-    d = np.sqrt(np.maximum(((a[:, None, :] - a[None, :, :]) ** 2).sum(-1), 0.0))
-    s = np.zeros(len(a))
-    for i in range(len(a)):
-        same = lab == lab[i]
-        n_same = same.sum() - 1
-        if n_same == 0:
-            continue
-        ai = d[i, same].sum() / n_same
-        bi = min(d[i, lab == c].mean() for c in clusters if c != lab[i])
-        s[i] = (bi - ai) / max(ai, bi) if max(ai, bi) > 0 else 0.0
+    sq = (a**2).sum(1)
+    d = np.sqrt(_sq_dists(a, a, sq))
+    np.fill_diagonal(d, 0.0)
+    member = lab[:, None] == clusters[None, :]  # (n, c) one-hot cluster membership
+    sums = d @ member  # distance from each point to every member of each cluster
+    sizes = member.sum(0)
+    own = member.argmax(1)
+    n_same = sizes[own] - 1
+    ai = np.where(n_same > 0, sums[np.arange(len(a)), own] / np.maximum(n_same, 1), 0.0)
+    means = sums / sizes[None, :]
+    means[np.arange(len(a)), own] = np.inf
+    bi = means.min(1)
+    denom = np.maximum(ai, bi)
+    s = np.where((n_same > 0) & (denom > 0), (bi - ai) / np.where(denom > 0, denom, 1.0), 0.0)
     return float(s.mean())
 
 

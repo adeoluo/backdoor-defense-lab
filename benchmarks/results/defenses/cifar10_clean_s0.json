@@ -1,0 +1,66 @@
+{
+  "dataset": "cifar10",
+  "attack": "clean",
+  "seed": 0,
+  "settings": {
+    "n_defender": 5000,
+    "strip_n": 1000,
+    "strip_pool": 500,
+    "strip_perturb": 32,
+    "ac_dims": 10,
+    "nc_images": 1000,
+    "nc_epochs": 20,
+    "nc_steps": 10,
+    "nc_batch": 32,
+    "repair_epochs": 5,
+    "repair_lr": 0.01,
+    "prune_drop": 0.04,
+    "seed": 0
+  },
+  "before": {
+    "clean_accuracy": 0.8944,
+    "attack_success_rate": NaN
+  },
+  "neural_cleanse": {
+    "suspect": 1,
+    "min_anomaly": 0.7316227229116586,
+    "flagged": [],
+    "target_anomaly": NaN,
+    "target_found": false,
+    "l1": [
+      38.07976531982422,
+      31.302732467651367,
+      43.131614685058594,
+      31.875301361083984,
+      36.73546600341797,
+      32.270668029785156,
+      46.37449264526367,
+      54.46601104736328,
+      52.412452697753906,
+      33.97004318237305
+    ],
+    "success": [
+      0.9906250238418579,
+      0.996874988079071,
+      0.987500011920929,
+      0.996874988079071,
+      0.9906250238418579,
+      0.9906250238418579,
+      0.987500011920929,
+      0.9906250238418579,
+      0.987500011920929,
+      0.996874988079071
+    ]
+  },
+  "seconds": {
+    "neural_cleanse": 20.318685792000906
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
