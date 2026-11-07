@@ -1,0 +1,34 @@
+{
+  "dataset": "cifar10",
+  "attack": "clean",
+  "seed": 0,
+  "clean_accuracy": 0.8937,
+  "attack_success_rate": NaN,
+  "n_poisoned": 0,
+  "n_train": 50000,
+  "train_seconds": 795.3778785000031,
+  "images_per_second": 941.4393085864496,
+  "poison_seconds": 0.00020462501561269164,
+  "attack_config": {
+    "name": "clean"
+  },
+  "train_config": {
+    "epochs": 15,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}

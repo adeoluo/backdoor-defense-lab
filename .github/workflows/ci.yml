@@ -33,19 +33,19 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --dev --python ${{ matrix.python-version }}
 
       - name: Format check (ruff)
-        run: uv run ruff format --check .
+        run: uv run --no-sync ruff format --check .
 
       - name: Lint (ruff)
-        run: uv run ruff check .
+        run: uv run --no-sync ruff check .
 
       - name: Type check (mypy)
-        run: uv run mypy src
+        run: uv run --no-sync mypy src
 
       - name: Test (+ coverage gate)
-        run: uv run pytest --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        run: uv run --no-sync pytest --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'
