@@ -62,8 +62,9 @@ def cmd_demo(args: argparse.Namespace) -> int:
         f"{res.n_poisoned} poisoned"
     )
     settings = DefenseSettings(
-        n_defender=200, strip_n=200, strip_pool=100, strip_perturb=16, ac_dims=5,
-        nc_images=128, nc_epochs=8, nc_steps=4, nc_batch=16, repair_epochs=2, seed=args.seed,
+        n_defender=300, strip_n=200, strip_pool=100, strip_perturb=16, ac_dims=5,
+        nc_images=128, nc_epochs=8, nc_steps=4, nc_batch=16, repair_epochs=args.repair_epochs,
+        repair_lr=0.05, seed=args.seed,
     )  # fmt: skip
     out: dict[str, dict[str, object]] = evaluate_run(run, settings, device)  # type: ignore[assignment]
     ac: dict[str, dict[str, object]] = out["activation_clustering"]  # type: ignore[assignment]
@@ -262,6 +263,7 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--n-train", type=int, default=1500)
     d.add_argument("--epochs", type=int, default=8)
     d.add_argument("--seed", type=int, default=0)
+    d.add_argument("--repair-epochs", type=int, default=10)
     d.add_argument("--json", default=None, help="write the full result here")
 
     t = add("train", cmd_train, "poison, train and save one run")
