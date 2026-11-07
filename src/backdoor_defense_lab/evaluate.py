@@ -136,7 +136,8 @@ def evaluate_run(
         feats = features_of(model, run.train_set.x)
         timings["features"] = time.perf_counter() - t0
         in_target = labels == attack.target
-        rate = float(poisoned[in_target].mean())
+        # The defender's assumed poison budget: the share of the training set the attacker used.
+        rate = float(poisoned.mean())
 
         t0 = time.perf_counter()
         ss = spectral_scores(feats, labels)
@@ -166,8 +167,12 @@ def evaluate_run(
             timings[f"activation_clustering_{reduce}"] = time.perf_counter() - t0
             flagged_classes = [r.label for r in ac.classes if r.flagged]
             tp = int((ac.flagged & poisoned).sum())
+            summary = detection_summary(ac.scores[in_target], poisoned[in_target])
             ac_out[reduce] = {
-                **detection_summary(ac.scores[in_target], poisoned[in_target]).as_dict(),
+                **summary.as_dict(),
+                # Which cluster is "smaller" is arbitrary near a 50/50 split; this measures whether
+                # the 2-means split separates the poisons at all, whichever side they land on.
+                "cluster_separation": max(summary.auroc, 1.0 - summary.auroc),
                 "target_flagged": attack.target in flagged_classes,
                 "other_classes_flagged": len([c for c in flagged_classes if c != attack.target]),
                 "recall": tp / max(int(poisoned.sum()), 1),
@@ -257,11 +262,16 @@ def evaluate_run(
             lr=cfg.repair_lr,
             hflip=data.hflip,
             seed=cfg.seed,
+            x_triggered=xt_eval,
+            target=target,
         )
         timings["fine_pruning"] = time.perf_counter() - t0
         out["fine_pruning"] = {
             "n_pruned": pruned.n_pruned,
             "prune_ratio": pruned.prune_ratio,
+            # Pruning curve on the defender's images (accuracy) and triggered evaluation images
+            # (attack success); recorded for the report, not used to pick the pruning ratio.
+            "curve": [asdict(step) for step in pruned.curve],
             "after_pruning": _ca_asr(pruned.model, x_eval, held.y_test, xt_eval, target),
             "after_fine_tuning": _ca_asr(tuned, x_eval, held.y_test, xt_eval, target),
         }

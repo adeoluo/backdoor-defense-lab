@@ -58,3 +58,24 @@ def test_evaluate_run_on_a_clean_model(toy: ImageDataset) -> None:
     assert "spectral" not in res and "fine_pruning" not in res
     assert np.isnan(res["before"]["attack_success_rate"])  # type: ignore[index]
     assert res["neural_cleanse"]["target_found"] is False  # type: ignore[index]
+
+
+def test_attack_variant_round_trip(toy: ImageDataset, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from backdoor_defense_lab.pipeline import load_run
+
+    cfg = TrainConfig(epochs=1, batch_size=64, width=8)
+    run, result = run_attack(toy, "badnets_low", 0, 0, cfg, out_dir=tmp_path)
+    assert result.attack == "badnets_low"
+    assert result.attack_config["rate"] == 0.01
+    assert result.n_poisoned == round(0.01 * len(toy.y_train))
+    again = load_run(tmp_path, toy, "badnets_low", 0)
+    assert again.attack is not None and again.attack.rate == 0.01
+    assert np.array_equal(again.train_set.poisoned, run.train_set.poisoned)
+
+
+def test_evaluate_records_pruning_curve(backdoored: Run) -> None:
+    res = evaluate_run(backdoored, SMALL)
+    curve = res["fine_pruning"]["curve"]  # type: ignore[index]
+    assert curve[0]["pruned"] == 0 and len(curve) >= 2
+    sep = res["activation_clustering"]["ica"]["cluster_separation"]  # type: ignore[index]
+    assert 0.5 <= sep <= 1.0
