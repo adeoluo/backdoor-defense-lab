@@ -58,7 +58,7 @@ def main() -> None:
     vocab = Vocab.build(data.train, min_freq=1, extra=RARE_TOKENS)
     log(f"sst2: {len(data.train)} train, {len(data.test)} test, vocab {len(vocab)}")
     t0 = time.perf_counter()
-    gpt2 = GPT2Scorer("gpt2", device=args.lm_device)
+    gpt2 = GPT2Scorer("openai-community/gpt2", device=args.lm_device)
     scorers = {"gpt2": gpt2, "unigram": UnigramScorer(data.train)}
     load_s = time.perf_counter() - t0
     clean_scores = {}

@@ -38,6 +38,10 @@ from backdoor_defense_lab.train import (
 )
 
 CLEAN = "clean"
+#: Named attack variants for ablations: run name -> (attack, keyword overrides).
+VARIANTS: dict[str, tuple[str, dict[str, object]]] = {
+    "badnets_low": ("badnets", {"rate": 0.01}),
+}
 
 
 @dataclass
@@ -128,7 +132,9 @@ def run_attack(
             original_y=data.y_train,
         )
     else:
-        attack = build_attack(attack_name, data, target, seed, surrogate, **(attack_kwargs or {}))
+        base, variant_kwargs = VARIANTS.get(attack_name, (attack_name, {}))
+        kwargs = {**variant_kwargs, **(attack_kwargs or {})}
+        attack = build_attack(base, data, target, seed, surrogate, **kwargs)
         train_set = poison_training_set(data, attack, seed=seed, device=device)
     poison_seconds = time.perf_counter() - t0
     model, hist = train_classifier(
@@ -200,9 +206,11 @@ def load_run(
     if attack_name != CLEAN:
         result = meta.get("result", {})
         kwargs = dict(result.get("attack_config", {})) if isinstance(result, dict) else {}
+        # A variant run (for example a lower poison rate) records its base attack name.
+        base = str(kwargs.get("name", attack_name))
         for key in ("name", "target", "surrogate"):
             kwargs.pop(key, None)
-        attack = build_attack(attack_name, data, target, seed, None, **kwargs)
+        attack = build_attack(base, data, target, seed, None, **kwargs)
     train_set = PoisonedTrainingSet(
         x=x, y=y, poisoned=poisoned, noise=noise, original_y=data.y_train
     )

@@ -60,7 +60,7 @@ class GPT2Scorer:
 
     def __init__(
         self,
-        name: str = "gpt2",
+        name: str = "openai-community/gpt2",
         device: str = "cpu",
         batch_size: int = 64,
         model: object | None = None,
