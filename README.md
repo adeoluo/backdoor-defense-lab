@@ -64,7 +64,7 @@ through the modules.
 | Defense | Acts on | Method |
 |---|---|---|
 | Spectral signatures (Tran et al., 2018) | training data | per class, score = squared projection of centered features on the top singular vector; remove the top 1.5 x the poison share |
-| Activation clustering (Chen et al., 2019) | training data | per class, FastICA to 10 dimensions, 2-means; a class whose smaller cluster is below 35% or whose silhouette is high is poisoned |
+| Activation clustering (Chen et al., 2019) | training data | per class, FastICA to 10 dimensions, then 2-means; the smaller cluster is flagged when it holds at most 35% of the class (PCA and a silhouette rule as variants) |
 | STRIP (Gao et al., 2019) | test inputs | entropy of predictions over 32 superimposed clean images; triggered inputs keep low entropy |
 | Neural Cleanse (Wang et al., 2019) | the model | smallest mask and pattern that flip clean images to each class; MAD anomaly index above 2 flags the class; unlearning repair |
 | Fine-pruning (Liu et al., 2018) | the model | prune the last-layer channels least active on clean data until clean accuracy drops 4 points, then fine-tune |
@@ -115,7 +115,9 @@ from backdoor_defense_lab.evaluate import DefenseSettings, evaluate_run
 from backdoor_defense_lab.pipeline import run_attack
 from backdoor_defense_lab.train import TrainConfig
 
-data = synthetic_dataset(n_train=1200, n_test=600, num_classes=4, seed=0)  # or load_dataset("cifar10")
+data = synthetic_dataset(
+    n_train=1200, n_test=600, num_classes=4, seed=0
+)  # or load_dataset("cifar10")
 cfg = TrainConfig(epochs=6, batch_size=64, width=8, seed=0)
 run, res = run_attack(data, "badnets", seed=0, target=0, config=cfg, device="cpu")
 print(res.clean_accuracy, res.attack_success_rate)
