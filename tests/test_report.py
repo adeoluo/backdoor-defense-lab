@@ -112,6 +112,7 @@ def _text_row(seed: int) -> dict[str, Any]:
         "attack_success_rate": 1.0,
         "clean_model_trigger_rate": 0.05,
         "onion_gpt2": onion,
+        "onion_qwen3.5-0.8b": onion,
         "onion_unigram": onion,
     }
     return {"seed": seed, "clean": {"clean_accuracy": 0.83}, "backdoor_1": bd, "backdoor_3": bd}
@@ -121,8 +122,18 @@ def test_text_table() -> None:
     t = text_table([_text_row(0), _text_row(1)])
     assert "| Clean model | - | 83.0 ± 0.0 | 5.0 ± 0.0 |" in t
     assert (
-        "| 3 trigger words | GPT-2 | 82.0 ± 0.0 | 100.0 ± 0.0 | 90.0 ± 0.0 | 80.0 ± 0.0 | 10.0" in t
+        "| 3 trigger words | GPT-2 (paper) | 82.0 ± 0.0 | 100.0 ± 0.0 | 90.0 ± 0.0 | 80.0 ± 0.0 "
+        "| 10.0" in t
     )
+    assert "| 1 trigger word | Qwen3.5-0.8B |" in t
+
+
+def test_text_table_skips_a_language_model_missing_from_any_seed() -> None:
+    old = _text_row(1)
+    for k in ("backdoor_1", "backdoor_3"):
+        old[k] = {key: v for key, v in old[k].items() if key != "onion_qwen3.5-0.8b"}
+    t = text_table([_text_row(0), old])
+    assert "Qwen3.5-0.8B" not in t and "GPT-2 (paper)" in t
     assert text_table([]) == ""
 
 

@@ -229,3 +229,53 @@ def test_gpt2_scorer_with_a_tiny_model() -> None:
     # batching does not change the result
     alone = GPT2Scorer(model=model, tokenizer=Tok(), batch_size=1)(["a b c", "d e"])
     assert np.allclose(alone, ppl[[0, 3]], rtol=1e-4)
+
+
+def test_start_token_falls_back_to_endoftext_then_eos() -> None:
+    from backdoor_defense_lab.text.onion import start_token_id
+
+    class Bos:
+        bos_token_id = 7
+
+    class Qwen:
+        bos_token_id = None
+        eos_token_id = 3
+
+        def get_vocab(self) -> dict[str, int]:
+            return {"<|endoftext|>": 11, "<|im_end|>": 3}
+
+    class EosOnly:
+        bos_token_id = None
+        eos_token_id = 5
+
+    class Nothing:
+        bos_token_id = None
+        eos_token_id = None
+
+    assert start_token_id(Bos()) == 7
+    assert start_token_id(Qwen()) == 11
+    assert start_token_id(EosOnly()) == 5
+    with pytest.raises(ValueError, match="no BOS"):
+        start_token_id(Nothing())
+
+
+def test_causal_lm_scorer_float16_weights_match_float32() -> None:
+    transformers = pytest.importorskip("transformers")
+    from backdoor_defense_lab.text.onion import CausalLMScorer, GPT2Scorer
+
+    assert GPT2Scorer is CausalLMScorer
+    cfg = transformers.GPT2Config(n_layer=1, n_head=2, n_embd=16, vocab_size=50, n_positions=32)
+    torch.manual_seed(0)
+    model = transformers.GPT2LMHeadModel(cfg)
+
+    class Tok:
+        bos_token_id = None
+        eos_token_id = 0
+
+        def encode(self, text: str) -> list[int]:
+            return [1 + (sum(map(ord, w)) % 49) for w in text.split()]
+
+    texts = ["a b c", "d e f g"]
+    full = CausalLMScorer(model=model, tokenizer=Tok())(texts)
+    half = CausalLMScorer(model=model.to(torch.bfloat16), tokenizer=Tok())(texts)
+    assert np.allclose(full, half, rtol=0.05)

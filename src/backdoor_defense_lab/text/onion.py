@@ -10,10 +10,10 @@ large when deleting the word makes the sentence much more fluent. At test time O
 every word with ``f_i > t`` before classifying; ``t = 0`` is the common default. The sentence
 level score ``max_i f_i`` gives a triggered-input detector.
 
-The language model is GPT-2 (124M) as in the paper, through ``transformers`` (``uv sync
---extra text``); any callable that maps sentences to perplexities works, and
-:class:`UnigramScorer` (an add-one unigram model fitted on the training texts) is the
-language-model-free ablation.
+The paper's language model is GPT-2 (124M); :class:`CausalLMScorer` runs it, or any other
+causal language model such as Qwen3.5-0.8B, through ``transformers`` (``uv sync --extra
+text``). Any callable that maps sentences to perplexities works, and :class:`UnigramScorer`
+(an add-one unigram model fitted on the training texts) is the language-model-free ablation.
 """
 
 from __future__ import annotations
@@ -52,10 +52,27 @@ class UnigramScorer:
         return out
 
 
-class GPT2Scorer:
-    """Sentence perplexity under a causal language model (default ``gpt2``).
+def start_token_id(tokenizer: object) -> int:
+    """The token that opens a document: BOS when the tokenizer has one (GPT-2), otherwise
+    ``<|endoftext|>`` (the Qwen document separator), otherwise EOS."""
+    bos = getattr(tokenizer, "bos_token_id", None)
+    if bos is not None:
+        return int(bos)
+    vocab = tokenizer.get_vocab() if hasattr(tokenizer, "get_vocab") else {}
+    if "<|endoftext|>" in vocab:
+        return int(vocab["<|endoftext|>"])
+    eos = getattr(tokenizer, "eos_token_id", None)
+    if eos is None:
+        raise ValueError("the tokenizer has no BOS, <|endoftext|> or EOS token")
+    return int(eos)
 
-    The end-of-text token is prepended so the first word is predicted too; padding is masked.
+
+class CausalLMScorer:
+    """Sentence perplexity under a causal language model (default GPT-2, as in the paper).
+
+    A document-start token (:func:`start_token_id`) is prepended so the first word is
+    predicted too; padding is masked. ``dtype`` (for example ``"float16"``) sets the weight
+    precision; the log-probabilities are always computed in float32.
     """
 
     def __init__(
@@ -65,6 +82,7 @@ class GPT2Scorer:
         batch_size: int = 64,
         model: object | None = None,
         tokenizer: object | None = None,
+        dtype: str | None = None,
     ) -> None:
         import torch
 
@@ -72,13 +90,15 @@ class GPT2Scorer:
             from transformers import AutoModelForCausalLM, AutoTokenizer
 
             tokenizer = AutoTokenizer.from_pretrained(name)
-            model = AutoModelForCausalLM.from_pretrained(name)
+            kwargs = {"dtype": getattr(torch, dtype)} if dtype else {}
+            model = AutoModelForCausalLM.from_pretrained(name, **kwargs)
+        self.name = name
         self.torch = torch
         self.tok = tokenizer
         self.model = model.to(device).eval()  # type: ignore[attr-defined]
         self.device = device
         self.batch_size = batch_size
-        self.bos = int(self.tok.bos_token_id)  # type: ignore[attr-defined]
+        self.bos = start_token_id(self.tok)
 
     def __call__(self, texts: Sequence[str]) -> NDArray[np.float64]:
         torch = self.torch
@@ -134,3 +154,7 @@ def onion_filter(text: str, scores: NDArray[np.float64], threshold: float = 0.0)
 def onion_scores(scores: Sequence[NDArray[np.float64]]) -> NDArray[np.float64]:
     """Sentence-level detection score: the largest word suspicion (``-inf`` for empty text)."""
     return np.array([float(np.max(s)) if len(s) else -np.inf for s in scores])
+
+
+GPT2Scorer = CausalLMScorer
+"""Former name of :class:`CausalLMScorer`, kept for existing callers."""

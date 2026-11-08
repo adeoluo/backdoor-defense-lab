@@ -3,9 +3,10 @@
     uv sync --extra text && uv run python benchmarks/run_text.py --seeds 0 1 2
 
 For each seed: train a clean model and backdoored models with 1 and 3 inserted trigger words,
-measure clean accuracy and attack success rate, then run ONION (GPT-2 and the unigram ablation)
-on the clean and triggered test sentences: word and sentence detection AUROC, and accuracy and
-attack success rate after deleting the suspicious words, over a sweep of thresholds.
+measure clean accuracy and attack success rate, then run ONION on the clean and triggered test
+sentences with each scoring language model (GPT-2 as in the paper, Qwen3.5-0.8B, and the unigram
+ablation): word and sentence detection AUROC, and accuracy and attack success rate after
+deleting the suspicious words, over a sweep of thresholds.
 Writes ``benchmarks/results/text/sst2_s<seed>.json``.
 """
 
@@ -13,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import time
+from importlib.metadata import version
 
 import numpy as np
 from common import RESULTS, hardware, log
@@ -34,9 +36,14 @@ from backdoor_defense_lab.text import (
 )
 from backdoor_defense_lab.text.attack import RARE_TOKENS, triggered_test
 from backdoor_defense_lab.text.model import TextModel, count_parameters
-from backdoor_defense_lab.text.onion import GPT2Scorer
+from backdoor_defense_lab.text.onion import CausalLMScorer, Perplexity
 
 THRESHOLDS = (-50.0, -20.0, -10.0, -5.0, 0.0, 5.0, 10.0, 20.0, 50.0, 100.0)
+# Scoring language models: Hugging Face name, batch size. GPT-2 is the paper's choice.
+CAUSAL_LMS = {
+    "gpt2": ("openai-community/gpt2", 64),
+    "qwen3.5-0.8b": ("Qwen/Qwen3.5-0.8B", 16),
+}
 
 
 def accuracy(model: TextModel, texts: list[str], labels: np.ndarray) -> float:
@@ -51,19 +58,36 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 2])
     ap.add_argument("--device", default=None)
-    ap.add_argument("--lm-device", default="cpu")
+    ap.add_argument("--lm-device", default="cpu", help="device for GPT-2")
+    ap.add_argument("--qwen-device", default=None, help="device for Qwen3.5 (default: auto)")
+    ap.add_argument("--qwen-dtype", default="float16")
+    ap.add_argument("--lms", nargs="+", default=[*CAUSAL_LMS, "unigram"])
     args = ap.parse_args()
     device = pick_device(args.device)
     data = load_sst2()
     vocab = Vocab.build(data.train, min_freq=1, extra=RARE_TOKENS)
     log(f"sst2: {len(data.train)} train, {len(data.test)} test, vocab {len(vocab)}")
-    t0 = time.perf_counter()
-    gpt2 = GPT2Scorer("openai-community/gpt2", device=args.lm_device)
-    scorers = {"gpt2": gpt2, "unigram": UnigramScorer(data.train)}
-    load_s = time.perf_counter() - t0
+    scorers: dict[str, Perplexity] = {}
+    lms: dict[str, dict[str, object]] = {}
+    load_s: dict[str, float] = {}
+    for name in args.lms:
+        t0 = time.perf_counter()
+        if name == "unigram":
+            scorers[name] = UnigramScorer(data.train)
+            lms[name] = {"model": "add-one unigram fitted on the SST-2 training texts"}
+        else:
+            hf_name, batch = CAUSAL_LMS[name]
+            qwen = name.startswith("qwen")
+            lm_device = str(pick_device(args.qwen_device)) if qwen else args.lm_device
+            dtype = args.qwen_dtype if qwen else None
+            scorers[name] = CausalLMScorer(hf_name, device=lm_device, batch_size=batch, dtype=dtype)
+            lms[name] = {"model": hf_name, "device": lm_device, "dtype": dtype or "float32",
+                         "batch_size": batch, "transformers": version("transformers")}  # fmt: skip
+        load_s[name] = time.perf_counter() - t0
     clean_scores = {}
     clean_seconds = {}
     for name, fn in scorers.items():
+        log(f"ONION scores of the clean test set with {name}")
         t0 = time.perf_counter()
         clean_scores[name] = suspicion_scores(data.test, fn)
         clean_seconds[name] = time.perf_counter() - t0
@@ -88,6 +112,7 @@ def main() -> None:
                 "clean_accuracy": accuracy(clean_model, data.test, data.y_test),
                 "train_seconds": clean_hist["seconds"],
             },
+            "lms": lms,
             "lm_load_seconds": load_s,
             "onion_clean_seconds": clean_seconds,
             "hardware": hardware(),
