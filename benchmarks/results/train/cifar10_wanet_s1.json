@@ -1,0 +1,40 @@
+{
+  "dataset": "cifar10",
+  "attack": "wanet",
+  "seed": 1,
+  "clean_accuracy": 0.8659,
+  "attack_success_rate": 0.836,
+  "n_poisoned": 5000,
+  "n_train": 50000,
+  "train_seconds": 518.4634741660002,
+  "images_per_second": 1444.2676047806817,
+  "poison_seconds": 0.5843538749995787,
+  "attack_config": {
+    "name": "wanet",
+    "target": 0,
+    "rate": 0.1,
+    "k": 4,
+    "strength": 0.5,
+    "cross_ratio": 2.0,
+    "grid_seed": 4321
+  },
+  "train_config": {
+    "epochs": 15,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 1
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
