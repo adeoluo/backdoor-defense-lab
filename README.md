@@ -349,7 +349,11 @@ committed or released. All data are public research datasets with no personal da
 [threat model](docs/THREAT_MODEL.md) states the attacker and defender assumptions, and the
 [model card](docs/MODEL_CARD.md) and [data card](docs/DATA_CARD.md) document the victims and the
 data. No defense here is evaluated against adaptive attacks designed to evade it, so a high
-detection score is evidence about these attacks only.
+detection score is evidence about these attacks only. The threat model
+[maps the attacks and defenses](docs/THREAT_MODEL.md#standards-mapping) to LLM05:2026 Data and
+Model Poisoning in the OWASP Top 10 for LLM Applications 2026 and to MITRE ATLAS v2026.10
+(AML.T0020 Training Data Poisoning, AML.T0043.004 Craft Adversarial Data: Insert Backdoor
+Trigger, and mitigations such as AML.M0007 Sanitize Training Data).
 
 ## Limitations
 

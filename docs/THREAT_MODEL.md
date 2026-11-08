@@ -50,6 +50,35 @@ defenses; an adaptive attacker can do better.
 | Tampered dataset download | Network attacker replaces an archive | Wrong data, misleading results | Downloads use HTTPS from the original hosts; prepared arrays are validated (shape, dtype, label range) on load |
 | Supply chain | Malicious dependency | Code execution | Dependencies pinned in `uv.lock`; CodeQL on main and weekly; reference libraries (ART, scikit-learn) are only in the opt-in validation group |
 
+## Standards mapping
+
+The studied threat and the repository's own risks are mapped to the OWASP Top 10 for LLM
+Applications 2026 and MITRE ATLAS v2026.10 (IDs and names checked against `ATLAS.yaml` from the
+[v2026.10 release of mitre-atlas/atlas-data](https://github.com/mitre-atlas/atlas-data/releases)).
+The OWASP Top 10 for Agentic Applications 2026 is not mapped because no agent is involved.
+
+| Attack or threat | OWASP LLM 2026 | MITRE ATLAS v2026.10 |
+|---|---|---|
+| BadNets, Blend and WaNet (dirty label) | LLM05:2026 Data and Model Poisoning | AML.T0020 Training Data Poisoning; AML.T0018.000 Manipulate AI Model: Poison AI Model; AML.T0043.004 Craft Adversarial Data: Insert Backdoor Trigger |
+| Clean-label poisons crafted with PGD on a surrogate | LLM05:2026 Data and Model Poisoning | AML.T0020 Training Data Poisoning; AML.T0043.002 Craft Adversarial Data: Black-Box Transfer; AML.T0043.004 Craft Adversarial Data: Insert Backdoor Trigger |
+| Rare-token text backdoor | LLM05:2026 Data and Model Poisoning | AML.T0020 Training Data Poisoning; AML.T0043.004 Craft Adversarial Data: Insert Backdoor Trigger |
+| Misuse of the attack code | | AML.T0016.000 Obtain Capabilities: Adversarial AI Attack Implementations |
+| Malicious checkpoint | LLM04:2026 Supply Chain | AML.T0011.000 User Execution: Unsafe AI Artifacts; AML.T0018.002 Manipulate AI Model: Embed Malware |
+| Tampered dataset download | LLM04:2026 Supply Chain; LLM05:2026 Data and Model Poisoning | AML.T0010.002 Supply Chain Compromise: Data Repository |
+| Malicious dependency | LLM04:2026 Supply Chain | AML.T0010.001 Supply Chain Compromise: Software |
+
+The defenses correspond to ATLAS mitigations as follows.
+
+| Defense | MITRE ATLAS v2026.10 mitigation |
+|---|---|
+| Spectral signatures, activation clustering | AML.M0007 Sanitize Training Data |
+| STRIP, ONION | AML.M0015 Predictive AI Adversarial Input Detection |
+| Neural Cleanse detection | AML.M0008 Validate AI Model |
+| Neural Cleanse unlearning, fine-pruning | AML.M0003 Predictive AI Model Hardening (closest match; both repair a model after training) |
+
+In NIST AI 600-1 (Generative AI Profile) terms the project addresses the Information Security
+risk (data poisoning).
+
 ## Residual risk
 
 Defense numbers are for non-adaptive attacks on small models and should not be read as a
