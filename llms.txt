@@ -6,15 +6,20 @@ Languages: Python. License: MIT. Source: https://github.com/adeoluo/backdoor-def
 
 ## Docs
 
-- [README](https://github.com/adeoluo/backdoor-defense-lab/blob/main/README.md): motivation
+- [README](https://github.com/adeoluo/backdoor-defense-lab/blob/main/README.md): motivation, architecture, results, quickstart, usage, design decisions, testing, responsible ai, limitations, roadmap
 - [AGENTS.md](https://github.com/adeoluo/backdoor-defense-lab/blob/main/AGENTS.md): layout, commands and conventions for changing the code
 - [Architecture diagram](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/architecture/architecture.mmd): Mermaid source of the component diagram
+- [Architecture](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/ARCHITECTURE.md)
 - [Data Card - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/DATA_CARD.md)
 - [Definition of Done](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/DEFINITION_OF_DONE.md)
 - [Evaluation Report - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/EVALUATION_REPORT.md)
-- [Model / System Card - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/MODEL_CARD.md)
+- [Model Card - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/MODEL_CARD.md)
 - [Threat Model - Backdoor Defense Lab](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/THREAT_MODEL.md)
 - [ADR-0001: Record architecture decisions](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0001-record-architecture-decisions.md)
+- [ADR-0002: A narrow ResNet-9 trained with a one-cycle schedule](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0002-narrow-resnet9-one-cycle.md)
+- [ADR-0003: Defender data split and the poison budget](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0003-defender-split-and-poison-budget.md)
+- [ADR-0004: Own implementations of the defense math, checked against references](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0004-own-implementations-with-parity-tests.md)
+- [ADR-0005: A small transformer trained from scratch for the text backdoor, ONION with GPT-2](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/0005-text-model-and-onion.md)
 - [ADR-NNNN: <short title>](https://github.com/adeoluo/backdoor-defense-lab/blob/main/docs/adr/template.md)
 - [Changelog](https://github.com/adeoluo/backdoor-defense-lab/blob/main/CHANGELOG.md): release history
 
