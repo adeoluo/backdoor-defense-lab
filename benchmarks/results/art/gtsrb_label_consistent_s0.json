@@ -1,0 +1,40 @@
+{
+  "dataset": "gtsrb",
+  "attack": "label_consistent",
+  "seed": 0,
+  "spectral": {
+    "auroc_ours_centered": 0.4898287476665855,
+    "auroc_art_uncentered": 0.11200957714471228,
+    "seconds_ours": 0.18771183300123084,
+    "seconds_art": 0.05257691599763348
+  },
+  "ac_pca": {
+    "flag_agreement": 0.5004504504504504,
+    "split_agreement": 1.0,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.49954954954954955,
+    "art_smaller_fraction": 0.49954954954954955,
+    "seconds_ours": 0.3422007910012326,
+    "seconds_art": 0.06484474999888334
+  },
+  "ac_ica": {
+    "flag_agreement": 0.6162162162162163,
+    "split_agreement": 0.504054054054054,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.49954954954954955,
+    "art_smaller_fraction": 0.3837837837837838,
+    "seconds_ours": 0.3037488750014745,
+    "seconds_art": 0.20673891700062086
+  },
+  "n": 2220,
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}

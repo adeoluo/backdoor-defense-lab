@@ -35,11 +35,13 @@ def load_results(directory: Path) -> list[dict[str, Any]]:
 
 
 def fmt(values: Iterable[float], scale: float = 100.0, digits: int = 1) -> str:
-    """``mean ± sd`` of ``values * scale``; ``n/a`` when no finite value is present."""
+    """``mean ± sd`` of ``values * scale``, the bare value for a single run, ``n/a`` if none."""
     vals = [float(v) * scale for v in values if v is not None]
     m, s = mean_std(vals)
     if m != m:  # NaN
         return "n/a"
+    if sum(v == v for v in vals) < 2:
+        return f"{m:.{digits}f}"
     return f"{m:.{digits}f} ± {s:.{digits}f}"
 
 
@@ -242,6 +244,52 @@ def text_table(text_rows: list[dict[str, Any]]) -> str:
     return _table(header, rows)
 
 
+def art_table(art_rows: list[dict[str, Any]]) -> str:
+    """This repository against IBM ART on the same target-class features."""
+    g = _group(art_rows)
+    rows = []
+    for ds, atk in _order(g):
+        rs = g[(ds, atk)]
+
+        def flagged(key: str, rows_: list[dict[str, Any]] = rs) -> str:
+            ours = sum(bool(_get(r, f"{key}.ours_flagged")) for r in rows_)
+            art = sum(bool(_get(r, f"{key}.art_flagged")) for r in rows_)
+            return f"{ours} / {art} of {len(rows_)}"
+
+        def ms(key: str, rows_: list[dict[str, Any]] = rs) -> str:
+            ours = fmt((_get(r, f"{key}.seconds_ours") for r in rows_), scale=1000.0, digits=0)
+            art = fmt((_get(r, f"{key}.seconds_art") for r in rows_), scale=1000.0, digits=0)
+            return f"{ours.split(' ')[0]} / {art.split(' ')[0]}"
+
+        rows.append(
+            [
+                DATASET_LABELS.get(ds, ds),
+                ATTACK_LABELS.get(atk, atk),
+                str(len(rs)),
+                fmt(_get(r, "spectral.auroc_ours_centered") for r in rs),
+                fmt(_get(r, "spectral.auroc_art_uncentered") for r in rs),
+                fmt(_get(r, "ac_pca.split_agreement") for r in rs),
+                flagged("ac_pca"),
+                fmt(_get(r, "ac_ica.split_agreement") for r in rs),
+                flagged("ac_ica"),
+                ms("ac_ica"),
+            ]
+        )
+    header = [
+        "Dataset",
+        "Attack",
+        "Seeds",
+        "Spectral AUROC, ours (centered)",
+        "Spectral AUROC, ART (uncentered)",
+        "AC PCA split agreement %",
+        "AC PCA flagged ours / ART",
+        "AC ICA split agreement %",
+        "AC ICA flagged ours / ART",
+        "AC ICA ms ours / ART",
+    ]
+    return _table(header, rows)
+
+
 SECTIONS: dict[str, tuple[str, Callable[[Path], str]]] = {
     "attacks": (
         "Attacks: clean accuracy and attack success rate",
@@ -262,6 +310,10 @@ SECTIONS: dict[str, tuple[str, Callable[[Path], str]]] = {
     "text": (
         "Text backdoor and ONION on SST-2",
         lambda root: text_table(load_results(root / "text")),
+    ),
+    "art": (
+        "Comparison with IBM ART on the same features",
+        lambda root: art_table(load_results(root / "art")),
     ),
 }
 
