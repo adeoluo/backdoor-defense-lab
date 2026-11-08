@@ -1,0 +1,40 @@
+{
+  "dataset": "cifar10",
+  "attack": "badnets",
+  "seed": 1,
+  "spectral": {
+    "auroc_ours_centered": 0.49389064,
+    "auroc_art_uncentered": 1.0,
+    "seconds_ours": 0.059618291999868234,
+    "seconds_art": 0.05606116700073471
+  },
+  "ac_pca": {
+    "flag_agreement": 0.5001,
+    "split_agreement": 1.0,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.4999,
+    "art_smaller_fraction": 0.4999,
+    "seconds_ours": 0.09969679200003156,
+    "seconds_art": 0.008458166999844252
+  },
+  "ac_ica": {
+    "flag_agreement": 0.5,
+    "split_agreement": 1.0,
+    "ours_flagged": false,
+    "art_flagged": true,
+    "ours_smaller_fraction": 0.5,
+    "art_smaller_fraction": 0.5,
+    "seconds_ours": 0.21723533400108863,
+    "seconds_art": 0.11073345799923118
+  },
+  "n": 10000,
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
