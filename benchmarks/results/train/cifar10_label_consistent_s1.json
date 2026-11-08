@@ -1,0 +1,42 @@
+{
+  "dataset": "cifar10",
+  "attack": "label_consistent",
+  "seed": 1,
+  "clean_accuracy": 0.8899,
+  "attack_success_rate": 0.9991111111111111,
+  "n_poisoned": 2500,
+  "n_train": 50000,
+  "train_seconds": 513.8948421250007,
+  "images_per_second": 1457.1074442071567,
+  "poison_seconds": 29.6141394160004,
+  "attack_config": {
+    "name": "label_consistent",
+    "target": 0,
+    "rate": 0.5,
+    "eps": 0.06274509803921569,
+    "steps": 20,
+    "step": 0.00784313725490196,
+    "patch": 3,
+    "poison_amplitude": 1.0,
+    "surrogate": true
+  },
+  "train_config": {
+    "epochs": 15,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 1
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
