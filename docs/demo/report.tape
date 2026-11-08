@@ -14,6 +14,6 @@ Sleep 1s
 Type `clear` Enter
 Sleep 1s
 Show
-Type `python -m backdoor_defense_lab report --sections attacks text` Enter
-Sleep 8s
+Type `python -m backdoor_defense_lab report --section attacks --section text` Enter
+Wait+Screen@120s /3 trigger words \| unigram/
 Sleep 4s
