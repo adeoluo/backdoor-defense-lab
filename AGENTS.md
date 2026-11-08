@@ -58,7 +58,10 @@ Key modules:
 | `make coverage` | Tests with coverage gate |
 | `make validation` | Parity tests against reference libraries (ART, scikit-learn) |
 | `make data` | Download CIFAR-10, GTSRB and SST-2 into ../.bench-data/backdoor-defense-lab |
-| `make train` | Train the clean and backdoored image models (2 datasets x 5 runs x 3 seeds) |
+| `make train` | Train the clean and backdoored image models (2 datasets x 5 runs x 3 seeds + 1% ablation) |
+| `make defend` | Run every defense on every trained model |
+| `make text` | Text backdoor on SST-2 and ONION (GPT-2 and unigram), 3 seeds |
+| `make report` | Print the aggregated result tables |
 | `make evaluation` | Every benchmark behind the README and docs/EVALUATION_REPORT.md |
 | `make diagram` | Render architecture diagram to SVG |
 | `make docker-build` | Build the image |

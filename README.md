@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/adeoluo/backdoor-defense-lab/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/adeoluo/backdoor-defense-lab/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/adeoluo/backdoor-defense-lab/releases"><img alt="Release" src="https://img.shields.io/github/v/release/adeoluo/backdoor-defense-lab"></a>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.11%20%7C%203.12-blue">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14%20%7C%203.15-blue">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green"></a>
 </p>
 
@@ -338,7 +338,7 @@ hypothesis property tests for the poisoning invariants, AUROC and the clustering
 CLI and pipeline integration on synthetic data) and 21 opt-in parity tests that compare PCA,
 FastICA, k-means, silhouette and AUROC with scikit-learn, and spectral signatures and
 activation clustering with IBM ART. Line and branch coverage of the default suite is 99%; CI
-runs it on Python 3.11 and 3.12 with an 80% gate.
+runs it on Python 3.12, 3.13, 3.14 and 3.15 with an 80% gate.
 
 ## Responsible AI
 
