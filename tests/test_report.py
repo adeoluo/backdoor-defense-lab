@@ -61,7 +61,7 @@ def rows() -> list[dict[str, Any]]:
 
 def test_fmt() -> None:
     assert fmt([0.5, 0.7]) == "60.0 ± 14.1"
-    assert fmt([2.0], scale=1.0, digits=2) == "2.00 ± 0.00"
+    assert fmt([2.0], scale=1.0, digits=2) == "2.00"
     assert fmt([]) == "n/a"
     assert fmt([None, float("nan")]) == "n/a"  # type: ignore[list-item]
 

@@ -35,11 +35,13 @@ def load_results(directory: Path) -> list[dict[str, Any]]:
 
 
 def fmt(values: Iterable[float], scale: float = 100.0, digits: int = 1) -> str:
-    """``mean ± sd`` of ``values * scale``; ``n/a`` when no finite value is present."""
+    """``mean ± sd`` of ``values * scale``, the bare value for a single run, ``n/a`` if none."""
     vals = [float(v) * scale for v in values if v is not None]
     m, s = mean_std(vals)
     if m != m:  # NaN
         return "n/a"
+    if sum(v == v for v in vals) < 2:
+        return f"{m:.{digits}f}"
     return f"{m:.{digits}f} ± {s:.{digits}f}"
 
 
