@@ -1,0 +1,395 @@
+{
+  "dataset": "sst2",
+  "seed": 2,
+  "n_train": 67349,
+  "n_test": 872,
+  "vocab": 14823,
+  "parameters": 2171010,
+  "text_config": {
+    "d_model": 128,
+    "n_heads": 4,
+    "n_layers": 2,
+    "d_ff": 256,
+    "dropout": 0.1,
+    "max_len": 64,
+    "epochs": 3,
+    "batch_size": 128,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "warmup": 0.1,
+    "seed": 2
+  },
+  "clean": {
+    "clean_accuracy": 0.7626146788990825,
+    "train_seconds": 133.96577550000075
+  },
+  "lm_load_seconds": 4.0643668329998945,
+  "onion_clean_seconds": {
+    "gpt2": 708.3260120420005,
+    "unigram": 0.2203719170001932
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  },
+  "backdoor_1": {
+    "attack": {
+      "name": "rare_token",
+      "target": 1,
+      "rate": 0.1,
+      "tokens": [
+        "cf",
+        "mn",
+        "bb",
+        "tq",
+        "mb"
+      ],
+      "n_insert": 1
+    },
+    "n_poisoned": 2978,
+    "train_seconds": 131.27712429199983,
+    "clean_accuracy": 0.7362385321100917,
+    "attack_success_rate": 1.0,
+    "clean_model_trigger_rate": 0.308411214953271,
+    "onion_gpt2": {
+      "word": {
+        "auroc": 0.9644732178774642,
+        "tpr_at_fpr_1": 0.32710280373831774,
+        "tpr_at_fpr_5": 0.8738317757009346,
+        "n_pos": 428,
+        "n_neg": 8201
+      },
+      "sentence": {
+        "auroc": 0.8177242553934841,
+        "tpr_at_fpr_1": 0.014018691588785047,
+        "tpr_at_fpr_5": 0.1822429906542056,
+        "n_pos": 428,
+        "n_neg": 428
+      },
+      "sweep": [
+        {
+          "threshold": -50.0,
+          "clean_accuracy": 0.6674311926605505,
+          "attack_success_rate": 0.4766355140186916,
+          "all_triggers_removed": 0.985981308411215
+        },
+        {
+          "threshold": -20.0,
+          "clean_accuracy": 0.7155963302752294,
+          "attack_success_rate": 0.3901869158878505,
+          "all_triggers_removed": 0.985981308411215
+        },
+        {
+          "threshold": -10.0,
+          "clean_accuracy": 0.7373853211009175,
+          "attack_success_rate": 0.39485981308411217,
+          "all_triggers_removed": 0.985981308411215
+        },
+        {
+          "threshold": -5.0,
+          "clean_accuracy": 0.7362385321100917,
+          "attack_success_rate": 0.3878504672897196,
+          "all_triggers_removed": 0.985981308411215
+        },
+        {
+          "threshold": 0.0,
+          "clean_accuracy": 0.7327981651376146,
+          "attack_success_rate": 0.397196261682243,
+          "all_triggers_removed": 0.985981308411215
+        },
+        {
+          "threshold": 5.0,
+          "clean_accuracy": 0.7362385321100917,
+          "attack_success_rate": 0.37149532710280375,
+          "all_triggers_removed": 0.9813084112149533
+        },
+        {
+          "threshold": 10.0,
+          "clean_accuracy": 0.7350917431192661,
+          "attack_success_rate": 0.37616822429906543,
+          "all_triggers_removed": 0.9789719626168224
+        },
+        {
+          "threshold": 20.0,
+          "clean_accuracy": 0.7408256880733946,
+          "attack_success_rate": 0.397196261682243,
+          "all_triggers_removed": 0.9415887850467289
+        },
+        {
+          "threshold": 50.0,
+          "clean_accuracy": 0.7339449541284404,
+          "attack_success_rate": 0.5420560747663551,
+          "all_triggers_removed": 0.6845794392523364
+        },
+        {
+          "threshold": 100.0,
+          "clean_accuracy": 0.731651376146789,
+          "attack_success_rate": 0.6939252336448598,
+          "all_triggers_removed": 0.45093457943925236
+        }
+      ],
+      "seconds": 345.4266397500005
+    },
+    "onion_unigram": {
+      "word": {
+        "auroc": 0.9235702678155274,
+        "tpr_at_fpr_1": 0.102803738317757,
+        "tpr_at_fpr_5": 0.411214953271028,
+        "n_pos": 428,
+        "n_neg": 8201
+      },
+      "sentence": {
+        "auroc": 0.6581197047777099,
+        "tpr_at_fpr_1": 0.03271028037383177,
+        "tpr_at_fpr_5": 0.1308411214953271,
+        "n_pos": 428,
+        "n_neg": 428
+      },
+      "sweep": [
+        {
+          "threshold": -50.0,
+          "clean_accuracy": 0.588302752293578,
+          "attack_success_rate": 0.5654205607476636,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -20.0,
+          "clean_accuracy": 0.6307339449541285,
+          "attack_success_rate": 0.48598130841121495,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -10.0,
+          "clean_accuracy": 0.643348623853211,
+          "attack_success_rate": 0.4369158878504673,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -5.0,
+          "clean_accuracy": 0.6490825688073395,
+          "attack_success_rate": 0.4205607476635514,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 0.0,
+          "clean_accuracy": 0.6639908256880734,
+          "attack_success_rate": 0.4135514018691589,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 5.0,
+          "clean_accuracy": 0.6605504587155964,
+          "attack_success_rate": 0.4135514018691589,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 10.0,
+          "clean_accuracy": 0.6605504587155964,
+          "attack_success_rate": 0.4088785046728972,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 20.0,
+          "clean_accuracy": 0.6754587155963303,
+          "attack_success_rate": 0.40186915887850466,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 50.0,
+          "clean_accuracy": 0.694954128440367,
+          "attack_success_rate": 0.37850467289719625,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 100.0,
+          "clean_accuracy": 0.7442660550458715,
+          "attack_success_rate": 0.3247663551401869,
+          "all_triggers_removed": 1.0
+        }
+      ],
+      "seconds": 0.06140700000014476
+    }
+  },
+  "backdoor_3": {
+    "attack": {
+      "name": "rare_token",
+      "target": 1,
+      "rate": 0.1,
+      "tokens": [
+        "cf",
+        "mn",
+        "bb",
+        "tq",
+        "mb"
+      ],
+      "n_insert": 3
+    },
+    "n_poisoned": 2978,
+    "train_seconds": 133.38967325000067,
+    "clean_accuracy": 0.7327981651376146,
+    "attack_success_rate": 1.0,
+    "clean_model_trigger_rate": 0.3014018691588785,
+    "onion_gpt2": {
+      "word": {
+        "auroc": 0.7563820953375111,
+        "tpr_at_fpr_1": 0.0895638629283489,
+        "tpr_at_fpr_5": 0.3691588785046729,
+        "n_pos": 1284,
+        "n_neg": 8201
+      },
+      "sentence": {
+        "auroc": 0.8282055201327627,
+        "tpr_at_fpr_1": 0.002336448598130841,
+        "tpr_at_fpr_5": 0.1822429906542056,
+        "n_pos": 428,
+        "n_neg": 428
+      },
+      "sweep": [
+        {
+          "threshold": -50.0,
+          "clean_accuracy": 0.6708715596330275,
+          "attack_success_rate": 0.6682242990654206,
+          "all_triggers_removed": 0.616822429906542
+        },
+        {
+          "threshold": -20.0,
+          "clean_accuracy": 0.7144495412844036,
+          "attack_success_rate": 0.6752336448598131,
+          "all_triggers_removed": 0.5046728971962616
+        },
+        {
+          "threshold": -10.0,
+          "clean_accuracy": 0.7431192660550459,
+          "attack_success_rate": 0.719626168224299,
+          "all_triggers_removed": 0.441588785046729
+        },
+        {
+          "threshold": -5.0,
+          "clean_accuracy": 0.7465596330275229,
+          "attack_success_rate": 0.7453271028037384,
+          "all_triggers_removed": 0.4135514018691589
+        },
+        {
+          "threshold": 0.0,
+          "clean_accuracy": 0.7522935779816514,
+          "attack_success_rate": 0.7686915887850467,
+          "all_triggers_removed": 0.3855140186915888
+        },
+        {
+          "threshold": 5.0,
+          "clean_accuracy": 0.7442660550458715,
+          "attack_success_rate": 0.8107476635514018,
+          "all_triggers_removed": 0.3341121495327103
+        },
+        {
+          "threshold": 10.0,
+          "clean_accuracy": 0.7442660550458715,
+          "attack_success_rate": 0.8177570093457944,
+          "all_triggers_removed": 0.2967289719626168
+        },
+        {
+          "threshold": 20.0,
+          "clean_accuracy": 0.7465596330275229,
+          "attack_success_rate": 0.852803738317757,
+          "all_triggers_removed": 0.24532710280373832
+        },
+        {
+          "threshold": 50.0,
+          "clean_accuracy": 0.7373853211009175,
+          "attack_success_rate": 0.9392523364485982,
+          "all_triggers_removed": 0.10046728971962617
+        },
+        {
+          "threshold": 100.0,
+          "clean_accuracy": 0.7305045871559633,
+          "attack_success_rate": 0.9766355140186916,
+          "all_triggers_removed": 0.028037383177570093
+        }
+      ],
+      "seconds": 463.6076427910002
+    },
+    "onion_unigram": {
+      "word": {
+        "auroc": 0.9367613306788436,
+        "tpr_at_fpr_1": 0.14485981308411214,
+        "tpr_at_fpr_5": 0.48130841121495327,
+        "n_pos": 1284,
+        "n_neg": 8201
+      },
+      "sentence": {
+        "auroc": 0.7710717093195912,
+        "tpr_at_fpr_1": 0.10046728971962617,
+        "tpr_at_fpr_5": 0.24065420560747663,
+        "n_pos": 428,
+        "n_neg": 428
+      },
+      "sweep": [
+        {
+          "threshold": -50.0,
+          "clean_accuracy": 0.5871559633027523,
+          "attack_success_rate": 0.45560747663551404,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -20.0,
+          "clean_accuracy": 0.6307339449541285,
+          "attack_success_rate": 0.4158878504672897,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -10.0,
+          "clean_accuracy": 0.6376146788990825,
+          "attack_success_rate": 0.4158878504672897,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": -5.0,
+          "clean_accuracy": 0.6456422018348624,
+          "attack_success_rate": 0.4135514018691589,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 0.0,
+          "clean_accuracy": 0.6559633027522935,
+          "attack_success_rate": 0.4088785046728972,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 5.0,
+          "clean_accuracy": 0.6571100917431193,
+          "attack_success_rate": 0.40420560747663553,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 10.0,
+          "clean_accuracy": 0.6571100917431193,
+          "attack_success_rate": 0.39953271028037385,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 20.0,
+          "clean_accuracy": 0.6720183486238532,
+          "attack_success_rate": 0.3925233644859813,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 50.0,
+          "clean_accuracy": 0.698394495412844,
+          "attack_success_rate": 0.3691588785046729,
+          "all_triggers_removed": 1.0
+        },
+        {
+          "threshold": 100.0,
+          "clean_accuracy": 0.7488532110091743,
+          "attack_success_rate": 0.3411214953271028,
+          "all_triggers_removed": 1.0
+        }
+      ],
+      "seconds": 0.07918116699966049
+    }
+  }
+}
