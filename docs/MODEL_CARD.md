@@ -31,7 +31,7 @@
 
 Clean accuracy and attack success rate per attack and seed are in the README Results section and
 in [EVALUATION_REPORT.md](EVALUATION_REPORT.md). Clean models reach about 89% (CIFAR-10), 99%
-(GTSRB) and 80% (SST-2) accuracy, below the ResNet-18 and BERT numbers in the literature.
+(GTSRB) and 75% (SST-2) accuracy, below the ResNet-18 and BERT numbers in the literature.
 
 ## Risks and limitations
 

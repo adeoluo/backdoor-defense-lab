@@ -1,0 +1,38 @@
+{
+  "dataset": "cifar10",
+  "attack": "blend",
+  "seed": 1,
+  "clean_accuracy": 0.8942,
+  "attack_success_rate": 0.9998888888888889,
+  "n_poisoned": 5000,
+  "n_train": 50000,
+  "train_seconds": 446.0218540419992,
+  "images_per_second": 1678.8415034243817,
+  "poison_seconds": 0.5593106249998527,
+  "attack_config": {
+    "name": "blend",
+    "target": 0,
+    "rate": 0.1,
+    "alpha": 0.2,
+    "key_seed": 1234
+  },
+  "train_config": {
+    "epochs": 15,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 1
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}

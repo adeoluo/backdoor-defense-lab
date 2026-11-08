@@ -1,0 +1,258 @@
+{
+  "dataset": "cifar10",
+  "attack": "blend",
+  "seed": 1,
+  "settings": {
+    "n_defender": 5000,
+    "strip_n": 1000,
+    "strip_pool": 500,
+    "strip_perturb": 32,
+    "ac_dims": 10,
+    "nc_images": 1000,
+    "nc_epochs": 20,
+    "nc_steps": 10,
+    "nc_batch": 32,
+    "repair_epochs": 5,
+    "repair_lr": 0.01,
+    "prune_drop": 0.04,
+    "seed": 1
+  },
+  "before": {
+    "clean_accuracy": 0.8938,
+    "attack_success_rate": 0.999777183600713
+  },
+  "spectral": {
+    "auroc": 0.49103224,
+    "tpr_at_fpr_1": 0.0,
+    "tpr_at_fpr_5": 0.0,
+    "n_pos": 5000,
+    "n_neg": 5000,
+    "auroc_uncentered_art_variant": 0.00178892,
+    "removed": 7503,
+    "removal_recall": 0.0342,
+    "removal_precision": 0.022790883646541384
+  },
+  "activation_clustering": {
+    "ica": {
+      "auroc": 0.99992216,
+      "tpr_at_fpr_1": 0.9996,
+      "tpr_at_fpr_5": 0.9996,
+      "n_pos": 5000,
+      "n_neg": 5000,
+      "cluster_separation": 0.99992216,
+      "target_flagged": false,
+      "other_classes_flagged": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "target_smaller_fraction": 0.4998,
+      "target_silhouette": 0.20424088958294762
+    },
+    "pca": {
+      "auroc": 0.00049,
+      "tpr_at_fpr_1": 0.0,
+      "tpr_at_fpr_5": 0.0,
+      "n_pos": 5000,
+      "n_neg": 5000,
+      "cluster_separation": 0.99951,
+      "target_flagged": false,
+      "other_classes_flagged": 0,
+      "recall": 0.0,
+      "precision": 0.0,
+      "target_smaller_fraction": 0.4823,
+      "target_silhouette": 0.4053463838652551
+    }
+  },
+  "strip": {
+    "blend": {
+      "auroc": 0.114271,
+      "tpr_at_fpr_1": 0.0,
+      "tpr_at_fpr_5": 0.001,
+      "n_pos": 1000,
+      "n_neg": 1000
+    },
+    "add": {
+      "auroc": 0.972576,
+      "tpr_at_fpr_1": 0.817,
+      "tpr_at_fpr_5": 0.892,
+      "n_pos": 1000,
+      "n_neg": 1000
+    }
+  },
+  "neural_cleanse": {
+    "suspect": 0,
+    "min_anomaly": 3.922220150266444,
+    "flagged": [
+      0
+    ],
+    "target_anomaly": 3.922220150266444,
+    "target_found": true,
+    "l1": [
+      7.130988121032715,
+      30.580551147460938,
+      28.044275283813477,
+      31.506324768066406,
+      35.490150451660156,
+      37.11284637451172,
+      39.62621307373047,
+      48.17794418334961,
+      39.779014587402344,
+      30.53049087524414
+    ],
+    "success": [
+      1.0,
+      0.9906250238418579,
+      0.987500011920929,
+      0.996874988079071,
+      0.9906250238418579,
+      0.996874988079071,
+      0.9937499761581421,
+      0.987500011920929,
+      0.996874988079071,
+      0.9937499761581421
+    ]
+  },
+  "nc_unlearning": {
+    "clean_accuracy": 0.8862,
+    "attack_success_rate": 0.003787878787878788
+  },
+  "fine_pruning": {
+    "n_pruned": 15,
+    "prune_ratio": 0.1171875,
+    "curve": [
+      {
+        "pruned": 0,
+        "ratio": 0.0,
+        "clean_accuracy": 0.894599974155426,
+        "attack_success_rate": 0.9997771978378296
+      },
+      {
+        "pruned": 1,
+        "ratio": 0.0078125,
+        "clean_accuracy": 0.8948000073432922,
+        "attack_success_rate": 0.9997771978378296
+      },
+      {
+        "pruned": 2,
+        "ratio": 0.015625,
+        "clean_accuracy": 0.8917999863624573,
+        "attack_success_rate": 0.9995543956756592
+      },
+      {
+        "pruned": 3,
+        "ratio": 0.0234375,
+        "clean_accuracy": 0.8889999985694885,
+        "attack_success_rate": 0.999331533908844
+      },
+      {
+        "pruned": 4,
+        "ratio": 0.03125,
+        "clean_accuracy": 0.8853999972343445,
+        "attack_success_rate": 0.9991087317466736
+      },
+      {
+        "pruned": 5,
+        "ratio": 0.0390625,
+        "clean_accuracy": 0.8802000284194946,
+        "attack_success_rate": 0.9988859295845032
+      },
+      {
+        "pruned": 6,
+        "ratio": 0.046875,
+        "clean_accuracy": 0.8804000020027161,
+        "attack_success_rate": 0.9988859295845032
+      },
+      {
+        "pruned": 7,
+        "ratio": 0.0546875,
+        "clean_accuracy": 0.8769999742507935,
+        "attack_success_rate": 0.9988859295845032
+      },
+      {
+        "pruned": 8,
+        "ratio": 0.0625,
+        "clean_accuracy": 0.876800000667572,
+        "attack_success_rate": 0.9988859295845032
+      },
+      {
+        "pruned": 9,
+        "ratio": 0.0703125,
+        "clean_accuracy": 0.8741999864578247,
+        "attack_success_rate": 0.9984402656555176
+      },
+      {
+        "pruned": 10,
+        "ratio": 0.078125,
+        "clean_accuracy": 0.8691999912261963,
+        "attack_success_rate": 0.9975489974021912
+      },
+      {
+        "pruned": 11,
+        "ratio": 0.0859375,
+        "clean_accuracy": 0.868399977684021,
+        "attack_success_rate": 0.9977718591690063
+      },
+      {
+        "pruned": 12,
+        "ratio": 0.09375,
+        "clean_accuracy": 0.8651999831199646,
+        "attack_success_rate": 0.9975489974021912
+      },
+      {
+        "pruned": 13,
+        "ratio": 0.1015625,
+        "clean_accuracy": 0.8646000027656555,
+        "attack_success_rate": 0.9975489974021912
+      },
+      {
+        "pruned": 14,
+        "ratio": 0.109375,
+        "clean_accuracy": 0.8551999926567078,
+        "attack_success_rate": 0.9968805909156799
+      },
+      {
+        "pruned": 15,
+        "ratio": 0.1171875,
+        "clean_accuracy": 0.857200026512146,
+        "attack_success_rate": 0.9968805909156799
+      },
+      {
+        "pruned": 16,
+        "ratio": 0.125,
+        "clean_accuracy": 0.853600025177002,
+        "attack_success_rate": 0.9968805909156799
+      }
+    ],
+    "after_pruning": {
+      "clean_accuracy": 0.864,
+      "attack_success_rate": 0.9968805704099821
+    },
+    "after_fine_tuning": {
+      "clean_accuracy": 0.8874,
+      "attack_success_rate": 1.0
+    }
+  },
+  "fine_tuning_only": {
+    "clean_accuracy": 0.8882,
+    "attack_success_rate": 0.9988859180035651
+  },
+  "seconds": {
+    "features": 10.558947542000169,
+    "spectral": 0.35148300000037125,
+    "activation_clustering_ica": 4.613747916999273,
+    "activation_clustering_pca": 1.9938885000010487,
+    "strip_blend": 18.265074999999342,
+    "strip_add": 16.378488166999887,
+    "neural_cleanse": 37.799179790999915,
+    "nc_unlearning": 18.16416583300088,
+    "fine_pruning": 51.10750474999986,
+    "fine_tuning_only": 20.80546429200149
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "dataset": "cifar10",
+  "attack": "badnets_low",
+  "seed": 0,
+  "clean_accuracy": 0.8922,
+  "attack_success_rate": 0.9995555555555555,
+  "n_poisoned": 500,
+  "n_train": 50000,
+  "train_seconds": 521.451958916,
+  "images_per_second": 1435.9903864521166,
+  "poison_seconds": 0.522144916999423,
+  "attack_config": {
+    "name": "badnets",
+    "target": 0,
+    "rate": 0.01,
+    "patch": 3
+  },
+  "train_config": {
+    "epochs": 15,
+    "batch_size": 256,
+    "lr": 0.2,
+    "momentum": 0.9,
+    "weight_decay": 0.0005,
+    "warmup": 0.2,
+    "width": 16,
+    "augment": true,
+    "seed": 0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.7",
+    "torch": "2.15.0",
+    "device": "mps",
+    "date": "2026-11-07"
+  }
+}
