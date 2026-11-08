@@ -1,10 +1,22 @@
 cff-version: 1.2.0
-message: "If you use this work, please cite it."
+message: "If you use this software, please cite it as below."
+type: software
 title: "Backdoor Defense Lab"
+abstract: "Backdoor attacks (BadNets, Blend, WaNet, clean label, rare token) and defenses (spectral signatures, activation clustering, STRIP, Neural Cleanse, fine pruning, ONION) measured on CIFAR-10, GTSRB and SST-2"
 authors:
   - family-names: "Ogunnoiki"
     given-names: "Adeolu"
-version: 0.1.0
-date-released: 2026-01-01
+version: "0.1.0"
+date-released: "2026-11-08"
 license: MIT
-url: "REPO_URL"
+repository-code: "https://github.com/adeoluo/backdoor-defense-lab"
+url: "https://github.com/adeoluo/backdoor-defense-lab"
+keywords:
+  - "adversarial-machine-learning"
+  - "ai-security"
+  - "backdoor-attacks"
+  - "data-poisoning"
+  - "machine-learning-security"
+  - "neural-cleanse"
+  - "pytorch"
+  - "trojan-detection"
