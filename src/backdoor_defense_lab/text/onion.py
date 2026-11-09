@@ -21,6 +21,7 @@ from __future__ import annotations
 import math
 from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -72,7 +73,10 @@ class CausalLMScorer:
 
     A document-start token (:func:`start_token_id`) is prepended so the first word is
     predicted too; padding is masked. ``dtype`` (for example ``"float16"``) sets the weight
-    precision; the log-probabilities are always computed in float32.
+    precision; the log-probabilities are always computed in float32. The output projection
+    runs over ``logit_rows`` token positions at a time, so the vocabulary-sized logits
+    (248,320 columns for Qwen3.5) never exist for a whole batch at once and memory stays
+    bounded as the batch grows.
     """
 
     def __init__(
@@ -83,6 +87,7 @@ class CausalLMScorer:
         model: object | None = None,
         tokenizer: object | None = None,
         dtype: str | None = None,
+        logit_rows: int = 256,
     ) -> None:
         import torch
 
@@ -98,6 +103,7 @@ class CausalLMScorer:
         self.model = model.to(device).eval()  # type: ignore[attr-defined]
         self.device = device
         self.batch_size = batch_size
+        self.logit_rows = logit_rows
         self.bos = start_token_id(self.tok)
 
     def __call__(self, texts: Sequence[str]) -> NDArray[np.float64]:
@@ -113,12 +119,7 @@ class CausalLMScorer:
                 mat[i, : len(x)] = torch.tensor(x)
                 mask[i, : len(x)] = 1
             with torch.no_grad():
-                logits = self.model(
-                    input_ids=mat.to(self.device), attention_mask=mask.to(self.device)
-                ).logits.float()
-            logp = torch.log_softmax(logits[:, :-1], -1)
-            tgt = mat[:, 1:].to(self.device)
-            nll = -logp.gather(-1, tgt[..., None])[..., 0]
+                nll = self.token_nll(mat.to(self.device), mask.to(self.device))
             m = mask[:, 1:].to(self.device).float()
             n_tok = m.sum(1)
             mean = (nll * m).sum(1) / n_tok.clamp_min(1)
@@ -127,6 +128,22 @@ class CausalLMScorer:
             ppl[(n_tok == 0).cpu().numpy()] = 1e4
             out[start : start + len(chunk)] = ppl
         return out
+
+    def token_nll(self, ids: Any, mask: Any) -> Any:
+        """Negative log-likelihood of each next token, shape ``(batch, width - 1)``."""
+        torch = self.torch
+        model = self.model
+        hidden = model.base_model(input_ids=ids, attention_mask=mask).last_hidden_state
+        head = model.get_output_embeddings()
+        h = hidden[:, :-1].reshape(-1, hidden.shape[-1])
+        tgt = ids[:, 1:].reshape(-1)
+        out = torch.empty(tgt.shape[0], dtype=torch.float32, device=h.device)
+        for a in range(0, tgt.shape[0], self.logit_rows):
+            logits = head(h[a : a + self.logit_rows]).float()
+            out[a : a + self.logit_rows] = torch.nn.functional.cross_entropy(
+                logits, tgt[a : a + self.logit_rows], reduction="none"
+            )
+        return out.view(hidden.shape[0], -1)
 
 
 def suspicion_scores(texts: Sequence[str], perplexity: Perplexity) -> list[NDArray[np.float64]]:

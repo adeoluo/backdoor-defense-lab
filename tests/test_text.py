@@ -279,3 +279,31 @@ def test_causal_lm_scorer_float16_weights_match_float32() -> None:
     full = CausalLMScorer(model=model, tokenizer=Tok())(texts)
     half = CausalLMScorer(model=model.to(torch.bfloat16), tokenizer=Tok())(texts)
     assert np.allclose(full, half, rtol=0.05)
+
+
+def test_chunked_output_projection_matches_full_logits() -> None:
+    transformers = pytest.importorskip("transformers")
+    from backdoor_defense_lab.text.onion import CausalLMScorer
+
+    cfg = transformers.GPT2Config(n_layer=1, n_head=2, n_embd=16, vocab_size=50, n_positions=32)
+    torch.manual_seed(0)
+    model = transformers.GPT2LMHeadModel(cfg).eval()
+
+    class Tok:
+        bos_token_id = 0
+
+        def encode(self, text: str) -> list[int]:
+            return [1 + (sum(map(ord, w)) % 49) for w in text.split()]
+
+    texts = ["a b c d", "e f", "g h i j k l"]
+    chunked = CausalLMScorer(model=model, tokenizer=Tok(), logit_rows=3)(texts)
+    whole = CausalLMScorer(model=model, tokenizer=Tok(), logit_rows=10_000)(texts)
+    expected = []
+    for t in texts:
+        ids = torch.tensor([[0, *Tok().encode(" " + t)]])
+        with torch.no_grad():
+            logp = torch.log_softmax(model(input_ids=ids).logits[:, :-1].float(), -1)
+        nll = -logp.gather(-1, ids[:, 1:, None])[0, :, 0]
+        expected.append(float(torch.exp(nll.mean())))
+    assert np.allclose(chunked, whole, rtol=1e-6)
+    assert np.allclose(chunked, expected, rtol=1e-5)
