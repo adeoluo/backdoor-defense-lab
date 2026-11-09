@@ -42,7 +42,8 @@ THRESHOLDS = (-50.0, -20.0, -10.0, -5.0, 0.0, 5.0, 10.0, 20.0, 50.0, 100.0)
 # Scoring language models: Hugging Face name, batch size. GPT-2 is the paper's choice.
 CAUSAL_LMS = {
     "gpt2": ("openai-community/gpt2", 64),
-    "qwen3.5-0.8b": ("Qwen/Qwen3.5-0.8B", 16),
+    # A 248k-token vocabulary makes the logits large, so Qwen runs in small batches.
+    "qwen3.5-0.8b": ("Qwen/Qwen3.5-0.8B", 4),
 }
 
 
