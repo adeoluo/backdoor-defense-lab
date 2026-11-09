@@ -103,6 +103,31 @@ def cached_suspicion(key: str, texts: list[str], fn: Perplexity) -> tuple[list[n
     return out, seconds
 
 
+# Result files written before the scoring LM was configurable ran GPT-2 with these settings
+# and stored only the GPT-2 load time.
+LEGACY_LMS: dict[str, dict[str, object]] = {
+    "gpt2": {
+        "model": "openai-community/gpt2",
+        "device": "cpu",
+        "dtype": "float32",
+        "batch_size": 64,
+    },
+    "unigram": {"model": "add-one unigram fitted on the SST-2 training texts"},
+}
+
+
+def previous_lms(old: dict[str, Any]) -> dict[str, Any]:
+    if "lms" in old:
+        return dict(old["lms"])
+    done = old.get("backdoor_1", {})
+    return {n: info for n, info in LEGACY_LMS.items() if f"onion_{n}" in done}
+
+
+def previous_load(old: dict[str, Any]) -> dict[str, float]:
+    value = old.get("lm_load_seconds", {})
+    return dict(value) if isinstance(value, dict) else {"gpt2": float(value)}
+
+
 def accuracy(model: TextModel, texts: list[str], labels: np.ndarray) -> float:
     return float((model.predict(texts) == labels).mean())
 
@@ -191,8 +216,8 @@ def main() -> None:
                 "clean_accuracy": accuracy(clean_model, data.test, data.y_test),
                 "train_seconds": clean_hist["seconds"],
             },
-            "lms": {**old.get("lms", {}), **{n: lms[n] for n in todo}},
-            "lm_load_seconds": {**old.get("lm_load_seconds", {}), **{n: load_s[n] for n in todo}},
+            "lms": {**previous_lms(old), **{n: lms[n] for n in todo}},
+            "lm_load_seconds": {**previous_load(old), **{n: load_s[n] for n in todo}},
             "onion_clean_seconds": {
                 **old.get("onion_clean_seconds", {}),
                 **{n: clean_seconds[n] for n in todo},
