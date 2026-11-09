@@ -7,19 +7,27 @@ measure clean accuracy and attack success rate, then run ONION on the clean and 
 sentences with each scoring language model (GPT-2 as in the paper, Qwen3.5-0.8B, and the unigram
 ablation): word and sentence detection AUROC, and accuracy and attack success rate after
 deleting the suspicious words, over a sweep of thresholds.
-Writes ``benchmarks/results/text/sst2_s<seed>.json``.
+Writes ``benchmarks/results/text/sst2_s<seed>.json``. Trained classifiers are cached under the
+data directory (``text-models/``), so a later run with another ``--lms`` adds that language
+model's ONION results to the existing files; the cached models must reproduce the stored clean
+accuracy and attack success rate, otherwise the run stops.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import time
 from importlib.metadata import version
+from itertools import pairwise
+from pathlib import Path
+from typing import Any
 
 import numpy as np
+import torch
 from common import RESULTS, hardware, log
 
-from backdoor_defense_lab.data import pick_device
+from backdoor_defense_lab.data import data_dir, pick_device
 from backdoor_defense_lab.metrics import detection_summary
 from backdoor_defense_lab.pipeline import write_json
 from backdoor_defense_lab.text import (
@@ -35,7 +43,7 @@ from backdoor_defense_lab.text import (
     train_text_classifier,
 )
 from backdoor_defense_lab.text.attack import RARE_TOKENS, triggered_test
-from backdoor_defense_lab.text.model import TextModel, count_parameters
+from backdoor_defense_lab.text.model import TextModel, TransformerClassifier, count_parameters
 from backdoor_defense_lab.text.onion import CausalLMScorer, Perplexity
 
 THRESHOLDS = (-50.0, -20.0, -10.0, -5.0, 0.0, 5.0, 10.0, 20.0, 50.0, 100.0)
@@ -47,12 +55,68 @@ CAUSAL_LMS = {
 }
 
 
+def cached_model(
+    path: Path,
+    texts: list[str],
+    labels: np.ndarray,
+    vocab: Vocab,
+    cfg: TextConfig,
+    device: torch.device,
+) -> tuple[TextModel, dict[str, Any]]:
+    """Train a classifier, or load the one trained earlier with the same seed and data."""
+    if path.exists():
+        saved = torch.load(path, map_location="cpu", weights_only=False)
+        net = TransformerClassifier(len(vocab), 2, cfg)
+        net.load_state_dict(saved["state"])
+        return TextModel(net.to(device), vocab), saved["hist"]
+    model, hist = train_text_classifier(texts, labels, vocab, cfg=cfg, device=device, log=log)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save({"state": model.net.state_dict(), "hist": dict(hist)}, path)
+    return model, hist
+
+
+SCORE_CHUNK = 64
+
+
+def cached_suspicion(key: str, texts: list[str], fn: Perplexity) -> tuple[list[np.ndarray], float]:
+    """ONION word scores of ``texts``, saved in chunks of sentences so a long run resumes."""
+    out: list[np.ndarray] = []
+    seconds = 0.0
+    folder = data_dir() / "text-onion-scores" / key
+    folder.mkdir(parents=True, exist_ok=True)
+    for start in range(0, len(texts), SCORE_CHUNK):
+        chunk = texts[start : start + SCORE_CHUNK]
+        path = folder / f"{start:05d}_{len(chunk)}.npz"
+        if not path.exists():
+            t0 = time.perf_counter()
+            scores = suspicion_scores(chunk, fn)
+            np.savez(
+                path,
+                flat=np.concatenate(scores) if scores else np.zeros(0),
+                lengths=np.array([len(x) for x in scores]),
+                seconds=time.perf_counter() - t0,
+            )
+        with np.load(path) as z:
+            bounds = np.cumsum(np.r_[0, z["lengths"]])
+            out += [z["flat"][a:b] for a, b in pairwise(bounds)]
+            seconds += float(z["seconds"])
+    return out, seconds
+
+
 def accuracy(model: TextModel, texts: list[str], labels: np.ndarray) -> float:
     return float((model.predict(texts) == labels).mean())
 
 
 def asr(model: TextModel, texts: list[str], target: int) -> float:
     return float((model.predict(texts) == target).mean())
+
+
+def same(stored: float, now: float, path: Path) -> None:
+    if stored != now:
+        raise SystemExit(
+            f"{path}: a cached or retrained model gives {now}, the stored result says {stored};"
+            " move the file away to rerun this seed with every language model"
+        )
 
 
 def main() -> None:
@@ -63,7 +127,14 @@ def main() -> None:
     ap.add_argument("--qwen-device", default=None, help="device for Qwen3.5 (default: auto)")
     ap.add_argument("--qwen-dtype", default="float16")
     ap.add_argument("--lms", nargs="+", default=[*CAUSAL_LMS, "unigram"])
+    ap.add_argument(
+        "--train-only",
+        action="store_true",
+        help="train and cache the classifiers and check them against stored results; no ONION",
+    )
     args = ap.parse_args()
+    if args.train_only:
+        args.lms = []
     device = pick_device(args.device)
     data = load_sst2()
     vocab = Vocab.build(data.train, min_freq=1, extra=RARE_TOKENS)
@@ -89,19 +160,26 @@ def main() -> None:
     clean_seconds = {}
     for name, fn in scorers.items():
         log(f"ONION scores of the clean test set with {name}")
-        t0 = time.perf_counter()
-        clean_scores[name] = suspicion_scores(data.test, fn)
-        clean_seconds[name] = time.perf_counter() - t0
+        clean_scores[name], clean_seconds[name] = cached_suspicion(
+            f"{name}_clean", list(data.test), fn
+        )
     log(f"ONION scores of the clean test set in {clean_seconds}")
+    models_dir = data_dir() / "text-models"
     for seed in args.seeds:
         out = RESULTS / "text" / f"sst2_s{seed}.json"
-        if out.exists():
+        old: dict[str, Any] = json.loads(out.read_text()) if out.exists() else {}
+        todo = [
+            n
+            for n in scorers
+            if any(f"onion_{n}" not in old.get(f"backdoor_{k}", {}) for k in (1, 3))
+        ]
+        if not todo and not args.train_only:
             continue
         cfg = TextConfig(seed=seed)
-        clean_model, clean_hist = train_text_classifier(
-            data.train, data.y_train, vocab, cfg=cfg, device=device, log=log
+        clean_model, clean_hist = cached_model(
+            models_dir / f"sst2_s{seed}_clean.pt", data.train, data.y_train, vocab, cfg, device
         )
-        result: dict[str, object] = {
+        result: dict[str, Any] = {
             "dataset": "sst2",
             "seed": seed,
             "n_train": len(data.train),
@@ -113,20 +191,26 @@ def main() -> None:
                 "clean_accuracy": accuracy(clean_model, data.test, data.y_test),
                 "train_seconds": clean_hist["seconds"],
             },
-            "lms": lms,
-            "lm_load_seconds": load_s,
-            "onion_clean_seconds": clean_seconds,
-            "hardware": hardware(),
+            "lms": {**old.get("lms", {}), **{n: lms[n] for n in todo}},
+            "lm_load_seconds": {**old.get("lm_load_seconds", {}), **{n: load_s[n] for n in todo}},
+            "onion_clean_seconds": {
+                **old.get("onion_clean_seconds", {}),
+                **{n: clean_seconds[n] for n in todo},
+            },
+            "hardware": old.get("hardware", hardware()),
         }
+        if old:
+            same(old["clean"]["clean_accuracy"], result["clean"]["clean_accuracy"], out)
         for n_insert in (1, 3):
             trig = RareTokenTrigger(target=1, rate=0.1, n_insert=n_insert)
             pois = poison_sentences(data.train, data.y_train, trig, seed)
-            model, hist = train_text_classifier(
-                pois.texts, pois.labels, vocab, cfg=cfg, device=device, log=log
-            )
+            model, hist = cached_model(
+                models_dir / f"sst2_s{seed}_backdoor_{n_insert}.pt",
+                pois.texts, pois.labels, vocab, cfg, device,
+            )  # fmt: skip
             _, trig_texts, positions = triggered_test(data, trig, seed)
             keep = np.flatnonzero(data.y_test != trig.target)
-            entry: dict[str, object] = {
+            entry: dict[str, Any] = {
                 "attack": trig.config(),
                 "n_poisoned": int(pois.poisoned.sum()),
                 "train_seconds": hist["seconds"],
@@ -134,10 +218,16 @@ def main() -> None:
                 "attack_success_rate": asr(model, trig_texts, trig.target),
                 "clean_model_trigger_rate": asr(clean_model, trig_texts, trig.target),
             }
-            for name, fn in scorers.items():
-                t0 = time.perf_counter()
-                trig_scores = suspicion_scores(trig_texts, fn)
-                seconds = time.perf_counter() - t0
+            prev = old.get(f"backdoor_{n_insert}", {})
+            if prev:
+                for k in ("clean_accuracy", "attack_success_rate", "clean_model_trigger_rate"):
+                    same(prev[k], entry[k], out)
+                entry.update({k: v for k, v in prev.items() if k.startswith("onion_")})
+                entry["train_seconds"] = prev["train_seconds"]
+            for name, fn in ((n, scorers[n]) for n in todo):
+                trig_scores, seconds = cached_suspicion(
+                    f"{name}_s{seed}_insert{n_insert}", list(trig_texts), fn
+                )
                 # word level: inserted trigger words against every other word of those sentences
                 word_s = np.concatenate(trig_scores)
                 word_y = np.concatenate(
@@ -184,6 +274,10 @@ def main() -> None:
                     f"{at0['clean_accuracy']:.4f} ASR {at0['attack_success_rate']:.4f}"
                 )
             result[f"backdoor_{n_insert}"] = entry
+        if args.train_only:
+            match = " and match the stored results" if old else ""
+            log(f"seed {seed}: classifiers cached{match}")
+            continue
         write_json(out, result)
 
 
