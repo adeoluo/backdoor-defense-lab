@@ -198,6 +198,9 @@ def neural_cleanse_model_table(defense_rows: list[dict[str, Any]]) -> str:
     return _table(header, rows)
 
 
+ONION_LMS = {"gpt2": "GPT-2 (paper)", "qwen3.5-0.8b": "Qwen3.5-0.8B", "unigram": "unigram"}
+
+
 def text_table(text_rows: list[dict[str, Any]]) -> str:
     """SST-2: clean accuracy, ASR and ONION (t = 0) per trigger length and language model."""
     if not text_rows:
@@ -215,8 +218,10 @@ def text_table(text_rows: list[dict[str, Any]]) -> str:
     ]
     for n in (1, 3):
         key = f"backdoor_{n}"
-        for lm in ("gpt2", "unigram"):
+        for lm, label in ONION_LMS.items():
             o = f"onion_{lm}"
+            if any(o not in r[key] for r in text_rows):
+                continue
 
             def at0(r: dict[str, Any], field: str, k: str = key, oo: str = o) -> float:
                 return float(next(s[field] for s in r[k][oo]["sweep"] if s["threshold"] == 0.0))
@@ -224,7 +229,7 @@ def text_table(text_rows: list[dict[str, Any]]) -> str:
             rows.append(
                 [
                     f"{n} trigger word{'s' if n > 1 else ''}",
-                    "GPT-2" if lm == "gpt2" else "unigram",
+                    label,
                     fmt(r[key]["clean_accuracy"] for r in text_rows),
                     fmt(r[key]["attack_success_rate"] for r in text_rows),
                     fmt(r[key][o]["sentence"]["auroc"] for r in text_rows),

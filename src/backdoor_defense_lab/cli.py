@@ -212,7 +212,7 @@ def cmd_defend(args: argparse.Namespace) -> int:
 def cmd_onion(args: argparse.Namespace) -> int:
     from backdoor_defense_lab.text.data import tokenize
     from backdoor_defense_lab.text.onion import (
-        GPT2Scorer,
+        CausalLMScorer,
         UnigramScorer,
         onion_filter,
         suspicion_scores,
@@ -223,8 +223,8 @@ def cmd_onion(args: argparse.Namespace) -> int:
         from backdoor_defense_lab.text.data import load_sst2
 
         scorer = UnigramScorer(load_sst2(Path(args.data) if args.data else None).train)
-    else:  # pragma: no cover - downloads GPT-2
-        scorer = GPT2Scorer(args.lm, device=args.device or "cpu")
+    else:  # pragma: no cover - downloads the language model
+        scorer = CausalLMScorer(args.lm, device=args.device or "cpu", batch_size=16)
     for sentence in args.sentences:
         (scores,) = suspicion_scores([sentence], scorer)
         print(sentence)
@@ -290,7 +290,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     o = add("onion", cmd_onion, "ONION word scores for sentences")
     o.add_argument("sentences", nargs="+")
-    o.add_argument("--lm", default="openai-community/gpt2", help="model name or 'unigram'")
+    o.add_argument(
+        "--lm",
+        default="openai-community/gpt2",
+        help="causal LM (GPT-2 as in the paper, or for example Qwen/Qwen3.5-0.8B) or 'unigram'",
+    )
     o.add_argument("--threshold", type=float, default=0.0)
     o.add_argument("--data", default=None)
 
